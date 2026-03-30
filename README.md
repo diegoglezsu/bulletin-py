@@ -13,9 +13,9 @@
     <img src="docs/assets/logo.jpg" alt="Bulletin Fetcher Logo" width="200" />
 </div>
 
-**bulletin-fetcher** is a Python library to query and parse official bulletins,
-starting with the Official Journal of the European Union (DOUE) via EUR-Lex
-and the Cellar SPARQL endpoint.
+**bulletin-fetcher** is a Python library to query and fetch official bulletins. It makes easier to work with the Official Journal Data in python, providing a high-level API and data models. Current support:
+
+- Official Journal of the European Union (DOUE) via EUR-Lex / Cellar SPARQL endpoint.
 
 ## Key Features
 
