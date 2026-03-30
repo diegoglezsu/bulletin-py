@@ -1,14 +1,7 @@
-from typing import Literal
+"""Constants used by the DOUE client and repository layers."""
 
+#: EUR-Lex / Cellar SPARQL endpoint used for DOUE queries.
 SPARQL_ENDPOINT = "https://publications.europa.eu/webapi/rdf/sparql"
-
-DEFAULT_LANGUAGE = "ENG"
-
-EuLanguageCode = Literal[
-    "SPA", "ENG", "FRA", "DEU", "ITA", "POR", "NLD", "POL", "RON", 
-    "BUL", "CES", "DAN", "ELL", "EST", "FIN", "GAE", "HRV", "HUN", 
-    "LIT", "LAV", "MLT", "SLK", "SLV", "SWE"
-]
 
 # Mapping from EU authority language codes to ISO 639-1 codes
 # used in SPARQL FILTER(LANG(...)) clauses
@@ -38,3 +31,17 @@ LANGUAGE_CODE_MAP = {
     "SLV": "sl",
     "SWE": "sv",
 }
+
+# Keep a single source of truth for available language codes.
+#: Tuple with all supported EU authority language codes.
+SUPPORTED_LANGUAGE_CODES = tuple(LANGUAGE_CODE_MAP)
+
+#: Default language code used by the client when no language is provided.
+DEFAULT_LANGUAGE = "ENG"
+
+__all__ = [
+    "SPARQL_ENDPOINT",
+    "DEFAULT_LANGUAGE",
+    "LANGUAGE_CODE_MAP",
+    "SUPPORTED_LANGUAGE_CODES",
+]

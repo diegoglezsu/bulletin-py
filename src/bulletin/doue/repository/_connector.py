@@ -6,18 +6,18 @@ Handles query building and HTTP communication.
 
 import requests
 
-from .constants import SPARQL_ENDPOINT, LANGUAGE_CODE_MAP, EuLanguageCode, DEFAULT_LANGUAGE
-from .exceptions import EndpointError, QueryError
+from ..constants import SPARQL_ENDPOINT, LANGUAGE_CODE_MAP, DEFAULT_LANGUAGE
+from ..exceptions import EndpointError, QueryError
 
 
-class _DoueConnector:
+class DoueConnector:
     """Connector class for the EUR-Lex / Cellar SPARQL endpoint."""
 
     def __init__(self, endpoint: str = SPARQL_ENDPOINT, timeout: int = 30):
         self.endpoint = endpoint
         self.timeout = timeout
 
-    def build_acts_query(self, date: str, language: EuLanguageCode = DEFAULT_LANGUAGE) -> str:
+    def build_acts_query(self, date: str, language: str = DEFAULT_LANGUAGE) -> str:
         """Build a SPARQL query for Official Journal acts on a given date.
 
         Args:
