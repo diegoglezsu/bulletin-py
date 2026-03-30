@@ -41,7 +41,7 @@ class _DoueConnector:
                 f"Supported: {', '.join(sorted(LANGUAGE_CODE_MAP))}"
             )
 
-        language_uri = f"{LANGUAGE_BASE_URI}{language}"
+        language_uri = f"http://publications.europa.eu/resource/authority/language/{language}"
 
         return f"""
 PREFIX cdm: <http://publications.europa.eu/ontology/cdm#>
