@@ -18,7 +18,7 @@ class DoueBulletinClient:
 
         Args:
             date: Publication date in ISO format (e.g. "2025-03-27").
-            language: Language code (default: "ENG"). Supported values are defined in `LANGUAGE_CODE_MAP`.
+            language: Language code (default: "ENG"). Supported values are defined in `LANGUAGE_CODE_MAP`. Example: "ENG", "FRA", "DEU", "SPA".
 
         Returns:
             A list of DoueOfficialAct objects.
