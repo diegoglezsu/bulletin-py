@@ -6,7 +6,7 @@ Handles query building and HTTP communication.
 
 import requests
 
-from .constants import SPARQL_ENDPOINT, LANGUAGE_BASE_URI, LANGUAGE_CODE_MAP, EuLanguageCode, DEFAULT_LANGUAGE
+from .constants import SPARQL_ENDPOINT, LANGUAGE_CODE_MAP, EuLanguageCode, DEFAULT_LANGUAGE
 from .exceptions import EndpointError, QueryError
 
 
