@@ -6,6 +6,7 @@ repo_name: diegoglezsu/bulletin-fetcher
 
 theme:
   name: material
+  favicon: assets/logo.jpg
   palette:
     - scheme: default
       primary: amber
