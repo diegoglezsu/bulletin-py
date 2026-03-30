@@ -5,6 +5,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 jobs:
   publish-testpypi:
@@ -33,7 +34,6 @@ jobs:
         run: twine check dist/*
 
       - name: Publish package to TestPyPI
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
-        run: twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
