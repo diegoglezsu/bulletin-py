@@ -113,7 +113,7 @@ WHERE {{
     AS ?institutionCode
   )
 
-    {"\n  ".join(filters)}
+  {f"\n  ".join(filters)}
 
   OPTIONAL {{ ?c_act cdm:official-journal-act_number ?actNumber . }}
 }}
