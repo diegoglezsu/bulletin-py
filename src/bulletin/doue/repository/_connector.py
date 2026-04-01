@@ -65,7 +65,7 @@ class DoueConnector:
 
         filters: list[str] = self._get_filters(date, date_end, title_contains)
 
-        return f"""
+        query_template = """
 PREFIX cdm: <http://publications.europa.eu/ontology/cdm#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 PREFIX owl: <http://www.w3.org/2002/07/owl#>
@@ -113,12 +113,17 @@ WHERE {{
     AS ?institutionCode
   )
 
-  {f"\n  ".join(filters)}
+  {filters_str}
 
   OPTIONAL {{ ?c_act cdm:official-journal-act_number ?actNumber . }}
 }}
 ORDER BY ?sectionCode ?subsectionCode ?categoryLabel ?institutionLabel
 """
+        return query_template.format(
+            language_uri=language_uri,
+            lang_code=lang_code,
+            filters_str="\n  ".join(filters),
+        )
 
     def execute_query(self, query: str) -> dict:
         """Send a SPARQL query to the endpoint and return the JSON response.
