@@ -84,3 +84,18 @@ class CategoryType:
     """Represents a category type (resource type) from the authority list."""
     code: str
     label: str
+
+    def _to_dict(self) -> dict[str, str]:
+        """Return a serializable dict representation of the category type."""
+        return {
+            "code": self.code,
+            "label": self.label,
+        }
+    
+    @classmethod
+    def _from_binding(cls, binding: Mapping[str, Any]) -> CategoryType:
+        """Build a CategoryType from one SPARQL binding item."""
+        return cls(
+            code=_required_value(binding, "code"),
+            label=_required_value(binding, "label"),
+        )

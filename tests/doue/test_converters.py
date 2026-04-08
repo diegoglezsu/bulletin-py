@@ -4,147 +4,247 @@ from datetime import date
 
 import pytest
 
-from bulletin.doue.converters import acts_to_csv, parse_results
-from bulletin.doue.api.models import DoueOfficialAct
+from bulletin.doue.converters import acts_to_csv, parse_acts_results, parse_category_types_results
+from bulletin.doue.api.models import DoueOfficialAct, CategoryType
 
 
-def test_parse_results_with_required_fields_only() -> None:
-    response = {
-        "results": {
-            "bindings": [
-                {
-                    "act": {
-                        "value": "https://publications.europa.eu/resource/celex/32025R0001"
+class TestParseActsResults:
+    """Tests for parse_acts_results converter."""
+
+    def test_with_required_fields_only(self) -> None:
+        response = {
+            "results": {
+                "bindings": [
+                    {
+                        "act": {
+                            "value": "https://publications.europa.eu/resource/celex/32025R0001"
+                        },
+                        "title": {"value": "Regulation (EU) 2025/1"},
+                        "date": {"value": "2025-01-01"},
+                    }
+                ]
+            }
+        }
+
+        acts = parse_acts_results(response)
+
+        assert acts == [
+            DoueOfficialAct(
+                celex_uri="https://publications.europa.eu/resource/celex/32025R0001",
+                act_number=None,
+                title="Regulation (EU) 2025/1",
+                date=date(2025, 1, 1),
+                section_code=None,
+                subsection_code=None,
+                category_code=None,
+                category_uri=None,
+                category_label=None,
+                institution_code=None,
+                institution_uri=None,
+                institution_label=None,
+            )
+        ]
+
+    def test_with_all_supported_optional_fields(self) -> None:
+        response = {
+            "results": {
+                "bindings": [
+                    {
+                        "act": {"value": "https://example.com/act1"},
+                        "actNumber": {"value": "2025/1"},
+                        "title": {"value": "Act 1"},
+                        "date": {"value": "2025-03-27"},
+                        "sectionCode": {"value": "I"},
+                        "subsectionCode": {"value": "A"},
+                        "categoryCode": {"value": "REG"},
+                        "categoryUri": {"value": "https://example.com/category"},
+                        "categoryLabel": {"value": "Regulations"},
+                        "institutionCode": {"value": "COM"},
+                        "institutionUri": {"value": "https://example.com/institution"},
+                        "institutionLabel": {"value": "European Commission"},
+                    }
+                ]
+            }
+        }
+
+        acts = parse_acts_results(response)
+
+        assert acts[0].act_number == "2025/1"
+        assert acts[0].section_code == "I"
+        assert acts[0].institution_label == "European Commission"
+
+    def test_raises_for_missing_required_fields(self) -> None:
+        response = {
+            "results": {
+                "bindings": [
+                    {
+                        "title": {"value": "Act without celex"},
+                        "date": {"value": "2025-01-01"},
+                    }
+                ]
+            }
+        }
+
+        with pytest.raises(KeyError, match="Missing required field 'act'"):
+            parse_acts_results(response)
+
+    def test_raises_for_invalid_date(self) -> None:
+        response = {
+            "results": {
+                "bindings": [
+                    {
+                        "act": {"value": "https://example.com/act"},
+                        "title": {"value": "Invalid date act"},
+                        "date": {"value": "2025-99-99"},
+                    }
+                ]
+            }
+        }
+
+        with pytest.raises(ValueError):
+            parse_acts_results(response)
+
+    def test_raises_for_invalid_bindings_type(self) -> None:
+        response = {"results": {"bindings": {"not": "a-list"}}}
+
+        with pytest.raises(TypeError, match="'bindings' must be a list"):
+            parse_acts_results(response)
+
+    def test_raises_for_invalid_binding_entry(self) -> None:
+        response = {"results": {"bindings": ["not-a-mapping"]}}
+
+        with pytest.raises(TypeError, match="each binding must be a mapping"):
+            parse_acts_results(response)
+
+
+class TestActsToCsv:
+    """Tests for acts_to_csv converter."""
+
+    def test_serializes_rows(self) -> None:
+        acts = [
+            DoueOfficialAct(
+                celex_uri="https://example.com/act1",
+                act_number="2025/1",
+                title="Act 1",
+                date=date(2025, 3, 27),
+                section_code=None,
+                subsection_code=None,
+                category_code=None,
+                category_uri=None,
+                category_label=None,
+                institution_code=None,
+                institution_uri=None,
+                institution_label=None,
+            )
+        ]
+
+        csv_text = acts_to_csv(acts)
+        rows = csv_text.splitlines()
+
+        assert rows[0] == (
+            "\"celex_uri\",\"act_number\",\"title\",\"date\",\"section_code\","
+            "\"subsection_code\",\"category_code\",\"category_uri\",\"category_label\","
+            "\"institution_code\",\"institution_uri\",\"institution_label\""
+        )
+        assert rows[1].startswith(
+            "\"https://example.com/act1\",\"2025/1\",\"Act 1\",\"2025-03-27\""
+        )
+
+
+class TestParseCategoryTypesResults:
+    """Tests for parse_category_types_results converter."""
+
+    def test_with_valid_data(self) -> None:
+        """Test parsing category types with valid SPARQL response."""
+        response = {
+            "results": {
+                "bindings": [
+                    {
+                        "code": {"value": "REG"},
+                        "label": {"value": "Regulation"},
                     },
-                    "title": {"value": "Regulation (EU) 2025/1"},
-                    "date": {"value": "2025-01-01"},
-                }
-            ]
+                    {
+                        "code": {"value": "DIR"},
+                        "label": {"value": "Directive"},
+                    },
+                ]
+            }
         }
-    }
 
-    acts = parse_results(response)
+        types = parse_category_types_results(response)
 
-    assert acts == [
-        DoueOfficialAct(
-            celex_uri="https://publications.europa.eu/resource/celex/32025R0001",
-            act_number=None,
-            title="Regulation (EU) 2025/1",
-            date=date(2025, 1, 1),
-            section_code=None,
-            subsection_code=None,
-            category_code=None,
-            category_uri=None,
-            category_label=None,
-            institution_code=None,
-            institution_uri=None,
-            institution_label=None,
-        )
-    ]
+        assert len(types) == 2
+        assert types[0] == CategoryType(code="REG", label="Regulation")
+        assert types[1] == CategoryType(code="DIR", label="Directive")
 
-
-def test_parse_results_with_all_supported_optional_fields() -> None:
-    response = {
-        "results": {
-            "bindings": [
-                {
-                    "act": {"value": "https://example.com/act1"},
-                    "actNumber": {"value": "2025/1"},
-                    "title": {"value": "Act 1"},
-                    "date": {"value": "2025-03-27"},
-                    "sectionCode": {"value": "I"},
-                    "subsectionCode": {"value": "A"},
-                    "categoryCode": {"value": "REG"},
-                    "categoryUri": {"value": "https://example.com/category"},
-                    "categoryLabel": {"value": "Regulations"},
-                    "institutionCode": {"value": "COM"},
-                    "institutionUri": {"value": "https://example.com/institution"},
-                    "institutionLabel": {"value": "European Commission"},
-                }
-            ]
+    def test_with_single_type(self) -> None:
+        """Test parsing a single category type."""
+        response = {
+            "results": {
+                "bindings": [
+                    {
+                        "code": {"value": "RES"},
+                        "label": {"value": "Resolution"},
+                    }
+                ]
+            }
         }
-    }
 
-    acts = parse_results(response)
+        types = parse_category_types_results(response)
 
-    assert acts[0].act_number == "2025/1"
-    assert acts[0].section_code == "I"
-    assert acts[0].institution_label == "European Commission"
+        assert len(types) == 1
+        assert types[0].code == "RES"
+        assert types[0].label == "Resolution"
 
-
-def test_parse_results_raises_for_missing_required_fields() -> None:
-    response = {
-        "results": {
-            "bindings": [
-                {
-                    "title": {"value": "Act without celex"},
-                    "date": {"value": "2025-01-01"},
-                }
-            ]
+    def test_raises_for_missing_required_code(self) -> None:
+        """Test that parsing raises error when required 'code' field is missing."""
+        response = {
+            "results": {
+                "bindings": [
+                    {
+                        "label": {"value": "Regulation"},
+                        # Missing code
+                    }
+                ]
+            }
         }
-    }
 
-    with pytest.raises(KeyError, match="Missing required field 'act'"):
-        parse_results(response)
+        with pytest.raises(KeyError, match="Missing required field 'code'"):
+            parse_category_types_results(response)
 
-
-def test_parse_results_raises_for_invalid_date() -> None:
-    response = {
-        "results": {
-            "bindings": [
-                {
-                    "act": {"value": "https://example.com/act"},
-                    "title": {"value": "Invalid date act"},
-                    "date": {"value": "2025-99-99"},
-                }
-            ]
+    def test_raises_for_missing_required_label(self) -> None:
+        """Test that parsing raises error when required 'label' field is missing."""
+        response = {
+            "results": {
+                "bindings": [
+                    {
+                        "code": {"value": "REG"},
+                        # Missing label
+                    }
+                ]
+            }
         }
-    }
 
-    with pytest.raises(ValueError):
-        parse_results(response)
+        with pytest.raises(KeyError, match="Missing required field 'label'"):
+            parse_category_types_results(response)
 
+    def test_raises_for_invalid_bindings_type(self) -> None:
+        """Test that parsing raises error when bindings is not a list."""
+        response = {"results": {"bindings": {"not": "a-list"}}}
 
-def test_parse_results_raises_for_invalid_bindings_type() -> None:
-    response = {"results": {"bindings": {"not": "a-list"}}}
+        with pytest.raises(TypeError, match="'bindings' must be a list"):
+            parse_category_types_results(response)
 
-    with pytest.raises(TypeError, match="'bindings' must be a list"):
-        parse_results(response)
+    def test_raises_for_invalid_binding_entry(self) -> None:
+        """Test that parsing raises error when binding is not a mapping."""
+        response = {"results": {"bindings": ["not-a-mapping"]}}
 
+        with pytest.raises(TypeError, match="each binding must be a mapping"):
+            parse_category_types_results(response)
 
-def test_parse_results_raises_for_invalid_binding_entry() -> None:
-    response = {"results": {"bindings": ["not-a-mapping"]}}
+    def test_raises_for_missing_bindings(self) -> None:
+        """Test that parsing raises error when response is malformed."""
+        response = {"results": {}}
 
-    with pytest.raises(TypeError, match="each binding must be a mapping"):
-        parse_results(response)
-
-
-def test_acts_to_csv_serializes_rows() -> None:
-    acts = [
-        DoueOfficialAct(
-            celex_uri="https://example.com/act1",
-            act_number="2025/1",
-            title="Act 1",
-            date=date(2025, 3, 27),
-            section_code=None,
-            subsection_code=None,
-            category_code=None,
-            category_uri=None,
-            category_label=None,
-            institution_code=None,
-            institution_uri=None,
-            institution_label=None,
-        )
-    ]
-
-    csv_text = acts_to_csv(acts)
-    rows = csv_text.splitlines()
-
-    assert rows[0] == (
-        "\"celex_uri\",\"act_number\",\"title\",\"date\",\"section_code\"," 
-        "\"subsection_code\",\"category_code\",\"category_uri\",\"category_label\"," 
-        "\"institution_code\",\"institution_uri\",\"institution_label\""
-    )
-    assert rows[1].startswith(
-        "\"https://example.com/act1\",\"2025/1\",\"Act 1\",\"2025-03-27\""
-    )
+        with pytest.raises(KeyError, match="Invalid SPARQL response"):
+            parse_category_types_results(response)

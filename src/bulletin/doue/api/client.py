@@ -4,7 +4,7 @@ High-level client for querying EU Official Journal (DOUE) acts.
 
 from ..repository._connector import DoueConnector
 from ..constants import DEFAULT_LANGUAGE, SPARQL_ENDPOINT
-from ..converters import acts_to_csv, parse_results
+from ..converters import acts_to_csv, parse_acts_results, parse_category_types_results
 from .models import DoueOfficialAct, CategoryType
 
 
@@ -31,7 +31,7 @@ class DoueBulletinClient:
         """
         query = self._connector.build_acts_query(date, language=language, date_end=date_end, title_contains=title_contains, category_type=category_type)
         response = self._connector.execute_query(query)
-        return parse_results(response)
+        return parse_acts_results(response)
 
     def get_acts_csv(self, date: str, date_end: str | None = None, title_contains: str | None = None, category_type: str | None = None, language: str = DEFAULT_LANGUAGE) -> str:
         """
@@ -61,14 +61,4 @@ class DoueBulletinClient:
         """
         query = self._connector.build_category_types_query(language=language)
         response = self._connector.execute_query(query)
-
-        results = response.get("results", {}).get("bindings", [])
-        types_list = []
-        for result in results:
-            types_list.append(
-                CategoryType(
-                    code=result.get("code", {}).get("value", ""),
-                    label=result.get("label", {}).get("value", ""),
-                )
-            )
-        return types_list
+        return parse_category_types_results(response)
