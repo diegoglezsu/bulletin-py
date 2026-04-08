@@ -23,12 +23,12 @@ class DoueBulletinClient:
             date: Publication date in ISO format (e.g. "2025-03-27").
             date_end: End date in ISO format (e.g. "2025-03-27"). If provided, fetch acts published between `date` and `date_end` inclusive.
             title_contains: Case-insensitive substring filter on title.
-            category_type: Filter by category type code (e.g. "RES" for Resolution, "ANNOUNC" for Announcement). More available at <http://publications.europa.eu/resource/authority/resource-type>. Optional.
-            institution_type: Filter by institution type code (e.g. "CONSIL" for Council of the European Union, "COM" for Commission). More available at <http://publications.europa.eu/resource/authority/corporate-body>. Optional.
+            category_type: Filter by category type code (e.g. "RES" for Resolution, "ANNOUNC" for Announcement...). More types available at <http://publications.europa.eu/resource/authority/resource-type>. Optional.
+            institution_type: Filter by institution type code (e.g. "CONSIL" for Council of the European Union, "COM" for Commission...). More types available at <http://publications.europa.eu/resource/authority/corporate-body>. Optional.
             language: ISO Language code (default: "ENG"). Supported values are defined in `LANGUAGE_CODE_MAP`. Examples: "ENG", "FRA", "DEU", "SPA"...
-
         Returns:
             A list of DoueOfficialAct objects.
+            
         """
         query = self._connector.build_acts_query(date, language=language, date_end=date_end, title_contains=title_contains, category_type=category_type, institution_type=institution_type)
         response = self._connector.execute_query(query)
@@ -42,8 +42,8 @@ class DoueBulletinClient:
             date: Publication date in ISO format (e.g. "2025-03-27").
             date_end: End date in ISO format (e.g. "2025-03-27"). If provided, fetch acts published between `date` and `date_end` inclusive.
             title_contains: Case-insensitive substring filter on title.
-            category_type: Filter by category type code (e.g. "RES" for Resolution, "ANNOUNC" for Announcement). More available at <http://publications.europa.eu/resource/authority/resource-type>. Optional.
-            institution_type: Filter by institution type code (e.g. "CONSIL" for Council of the European Union, "COM" for Commission). More available at <http://publications.europa.eu/resource/authority/corporate-body>. Optional.
+            category_type: Filter by category type code (e.g. "RES" for Resolution, "ANNOUNC" for Announcement...). More types available at <http://publications.europa.eu/resource/authority/resource-type>. Optional.
+            institution_type: Filter by institution type code (e.g. "CONSIL" for Council of the European Union, "COM" for Commission...). More types available at <http://publications.europa.eu/resource/authority/corporate-body>. Optional.
             language: ISO Language code (default: "ENG"). Supported values are defined in `LANGUAGE_CODE_MAP`. Examples: "ENG", "FRA", "DEU", "SPA"...
         Returns:
             A string containing the CSV representation of the acts.
