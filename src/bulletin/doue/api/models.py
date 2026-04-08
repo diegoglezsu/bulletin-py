@@ -77,3 +77,10 @@ class DoueOfficialAct:
             institution_uri=_optional_value(binding, "institutionUri"),
             institution_label=_optional_value(binding, "institutionLabel"),
         )
+
+
+@dataclass
+class CategoryType:
+    """Represents a category type (resource type) from the authority list."""
+    code: str
+    label: str

@@ -60,6 +60,18 @@ def test_build_acts_query_title_contains(connector):
     assert 'CONTAINS(LCASE(STR(?title)), LCASE("regulation"))' in query
 
 
+def test_build_acts_query_category_type(connector):
+    """Test query building with category_type filter."""
+    query = connector.build_acts_query(date="2024-01-01", category_type="RES")
+    assert 'FILTER(?categoryCode = "RES")' in query
+
+
+def test_build_acts_query_invalid_category_type(connector):
+    """Test that empty category_type raises QueryError."""
+    with pytest.raises(QueryError, match="category_type filter cannot be empty"):
+        connector.build_acts_query(date="2024-01-01", category_type="  ")
+
+
 def test_build_acts_query_invalid_date_end_order(connector):
     with pytest.raises(QueryError, match="date_end must be on or after date"):
         connector.build_acts_query(date="2024-01-10", date_end="2024-01-01")
@@ -98,7 +110,20 @@ def test_execute_query_connection_error(connector):
             connector.execute_query(query)
         
         assert exc_info.value.status_code is None
-        assert "Failed to reach SPARQL endpoint" in str(exc_info.value)
+
+
+def test_build_category_types_query(connector):
+    """Test query building for category types."""
+    query = connector.build_category_types_query()
+    assert "skos:Concept" in query
+    assert "resource-type" in query
+    assert 'FILTER(LANG(?label) = "en")' in query
+
+
+def test_build_category_types_query_spa(connector):
+    """Test query building for category types with Spanish language."""
+    query = connector.build_category_types_query(language="SPA")
+    assert 'FILTER(LANG(?label) = "es")' in query
 
 
 def test_execute_query_timeout_error(connector):

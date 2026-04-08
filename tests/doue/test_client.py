@@ -9,7 +9,7 @@ import pytest
 
 from bulletin.doue.api.client import DoueBulletinClient
 from bulletin.doue.constants import SPARQL_ENDPOINT
-from bulletin.doue.api.models import DoueOfficialAct
+from bulletin.doue.api.models import DoueOfficialAct, CategoryType
 
 
 @pytest.fixture
@@ -84,7 +84,7 @@ def test_get_acts_with_valid_date(client, mock_connector):
         result = client.get_acts(test_date)
 
         mock_instance.build_acts_query.assert_called_once_with(
-            test_date, language="ENG", date_end=None, title_contains=None
+            test_date, language="ENG", date_end=None, title_contains=None, category_type=None
         )
         mock_instance.execute_query.assert_called_once_with("SPARQL_QUERY")
         mock_parse.assert_called_once_with(mock_response)
@@ -104,7 +104,7 @@ def test_get_acts_with_custom_language(client, mock_connector):
         client.get_acts(test_date, language=custom_language)
 
         mock_instance.build_acts_query.assert_called_once_with(
-            test_date, language=custom_language, date_end=None, title_contains=None
+            test_date, language=custom_language, date_end=None, title_contains=None, category_type=None
         )
 
 
@@ -182,7 +182,7 @@ def test_get_acts_with_date_end(client, mock_connector):
         client.get_acts(test_date, date_end=test_date_end)
 
         mock_instance.build_acts_query.assert_called_once_with(
-            test_date, language="ENG", date_end=test_date_end, title_contains=None
+            test_date, language="ENG", date_end=test_date_end, title_contains=None, category_type=None
         )
 
 
@@ -199,7 +199,7 @@ def test_get_acts_with_title_contains(client, mock_connector):
         client.get_acts(test_date, title_contains=title_filter)
 
         mock_instance.build_acts_query.assert_called_once_with(
-            test_date, language="ENG", date_end=None, title_contains=title_filter
+            test_date, language="ENG", date_end=None, title_contains=title_filter, category_type=None
         )
 
 
@@ -217,7 +217,7 @@ def test_get_acts_with_date_end_and_title_contains(client, mock_connector):
         client.get_acts(test_date, date_end=test_date_end, title_contains=title_filter)
 
         mock_instance.build_acts_query.assert_called_once_with(
-            test_date, language="ENG", date_end=test_date_end, title_contains=title_filter
+            test_date, language="ENG", date_end=test_date_end, title_contains=title_filter, category_type=None
         )
 
 
@@ -246,7 +246,31 @@ def test_get_acts_csv_returns_csv(client) -> None:
 
     assert "\"celex_uri\",\"act_number\",\"title\",\"date\"" in csv_text
     assert "\"https://example.com/act1\",\"2025/1\",\"Act 1\",\"2025-03-27\"" in csv_text
-    mock_get.assert_called_once_with(test_date, language="ENG", date_end=None, title_contains=None)
+    mock_get.assert_called_once_with(test_date, language="ENG", date_end=None, title_contains=None, category_type=None)
+
+
+def test_get_category_types(client, mock_connector):
+    """Test fetching category types from the client."""
+    mock_instance = mock_connector.return_value
+    mock_instance.build_category_types_query.return_value = "CATEGORY_TYPES_QUERY"
+    mock_instance.execute_query.return_value = {
+        "results": {
+            "bindings": [
+                {"code": {"value": "REG"}, "label": {"value": "Regulation"}},
+                {"code": {"value": "DIR"}, "label": {"value": "Directive"}},
+            ]
+        }
+    }
+
+    result = client.get_category_types(language="ENG")
+
+    mock_instance.build_category_types_query.assert_called_once_with(language="ENG")
+    mock_instance.execute_query.assert_called_once_with("CATEGORY_TYPES_QUERY")
+    assert len(result) == 2
+    assert result[0].code == "REG"
+    assert result[0].label == "Regulation"
+    assert result[1].code == "DIR"
+    assert result[1].label == "Directive"
 
 
 def test_get_acts_csv_with_date_end_and_title_contains(client) -> None:
@@ -278,5 +302,35 @@ def test_get_acts_csv_with_date_end_and_title_contains(client) -> None:
 
     assert "\"celex_uri\",\"act_number\",\"title\",\"date\"" in csv_text
     mock_get.assert_called_once_with(
-        test_date, language="ENG", date_end=test_date_end, title_contains=title_filter
+        test_date, language="ENG", date_end=test_date_end, title_contains=title_filter, category_type=None
+    )
+
+
+def test_get_acts_with_category_type(client, mock_connector):
+    """Test get_acts with category_type parameter."""
+    test_date = "2025-03-27"
+    category_type = "RES"
+    mock_instance = mock_connector.return_value
+    mock_instance.build_acts_query.return_value = "SPARQL_QUERY"
+    mock_instance.execute_query.return_value = {"results": {"bindings": []}}
+
+    with patch("bulletin.doue.api.client.parse_results") as mock_parse:
+        mock_parse.return_value = []
+        client.get_acts(test_date, category_type=category_type)
+
+        mock_instance.build_acts_query.assert_called_once_with(
+            test_date, language="ENG", date_end=None, title_contains=None, category_type=category_type
+        )
+
+
+def test_get_acts_csv_with_category_type(client):
+    """Test get_acts_csv with category_type parameter."""
+    test_date = "2025-03-27"
+    category_type = "RES"
+    
+    with patch.object(client, "get_acts", return_value=[]) as mock_get:
+        client.get_acts_csv(test_date, category_type=category_type)
+
+    mock_get.assert_called_once_with(
+        test_date, language="ENG", date_end=None, title_contains=None, category_type=category_type
     )
