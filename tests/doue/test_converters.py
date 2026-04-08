@@ -111,9 +111,10 @@ class TestParseActsResults:
             parse_acts_results(response)
 
     def test_raises_for_invalid_binding_entry(self) -> None:
+        """Test that parsing raises error when binding is not a mapping."""
         response = {"results": {"bindings": ["not-a-mapping"]}}
 
-        with pytest.raises(TypeError, match="each binding must be a mapping"):
+        with pytest.raises(TypeError, match="each Act binding must be a mapping"):
             parse_acts_results(response)
 
 
@@ -239,7 +240,7 @@ class TestParseCategoryTypesResults:
         """Test that parsing raises error when binding is not a mapping."""
         response = {"results": {"bindings": ["not-a-mapping"]}}
 
-        with pytest.raises(TypeError, match="each binding must be a mapping"):
+        with pytest.raises(TypeError, match="each category binding must be a mapping"):
             parse_category_types_results(response)
 
     def test_raises_for_missing_bindings(self) -> None:
@@ -338,7 +339,7 @@ class TestParseInstitutionTypesResults:
         """Test that parsing raises error when binding is not a mapping."""
         response = {"results": {"bindings": ["not-a-mapping"]}}
 
-        with pytest.raises(TypeError, match="each binding must be a mapping"):
+        with pytest.raises(TypeError, match="each institution binding must be a mapping"):
             parse_institution_types_results(response)
 
     def test_raises_for_missing_bindings(self) -> None:

@@ -85,7 +85,7 @@ class TestGetActs:
             result = client.get_acts(test_date)
 
             mock_instance.build_acts_query.assert_called_once_with(
-                test_date, language="ENG", date_end=None, title_contains=None, category_type=None
+                test_date, language="ENG", date_end=None, title_contains=None, category_type=None, institution_type=None
             )
             mock_instance.execute_query.assert_called_once_with("SPARQL_QUERY")
             mock_parse.assert_called_once_with(mock_response)
@@ -104,7 +104,7 @@ class TestGetActs:
             client.get_acts(test_date, language=custom_language)
 
             mock_instance.build_acts_query.assert_called_once_with(
-                test_date, language=custom_language, date_end=None, title_contains=None, category_type=None
+                test_date, language=custom_language, date_end=None, title_contains=None, category_type=None, institution_type=None
             )
 
     def test_returns_parsed_results(self, client, mock_connector):
@@ -179,7 +179,7 @@ class TestGetActs:
             client.get_acts(test_date, date_end=test_date_end)
 
             mock_instance.build_acts_query.assert_called_once_with(
-                test_date, language="ENG", date_end=test_date_end, title_contains=None, category_type=None
+                test_date, language="ENG", date_end=test_date_end, title_contains=None, category_type=None, institution_type=None
             )
 
     def test_with_title_contains(self, client, mock_connector):
@@ -195,7 +195,7 @@ class TestGetActs:
             client.get_acts(test_date, title_contains=title_filter)
 
             mock_instance.build_acts_query.assert_called_once_with(
-                test_date, language="ENG", date_end=None, title_contains=title_filter, category_type=None
+                test_date, language="ENG", date_end=None, title_contains=title_filter, category_type=None, institution_type=None
             )
 
     def test_with_date_end_and_title_contains(self, client, mock_connector):
@@ -212,7 +212,7 @@ class TestGetActs:
             client.get_acts(test_date, date_end=test_date_end, title_contains=title_filter)
 
             mock_instance.build_acts_query.assert_called_once_with(
-                test_date, language="ENG", date_end=test_date_end, title_contains=title_filter, category_type=None
+                test_date, language="ENG", date_end=test_date_end, title_contains=title_filter, category_type=None, institution_type=None
             )
 
     def test_with_category_type(self, client, mock_connector):
@@ -228,7 +228,7 @@ class TestGetActs:
             client.get_acts(test_date, category_type=category_type)
 
             mock_instance.build_acts_query.assert_called_once_with(
-                test_date, language="ENG", date_end=None, title_contains=None, category_type=category_type
+                test_date, language="ENG", date_end=None, title_contains=None, category_type=category_type, institution_type=None
             )
 
 
@@ -260,7 +260,7 @@ class TestGetActsCsv:
 
         assert "\"celex_uri\",\"act_number\",\"title\",\"date\"" in csv_text
         assert "\"https://example.com/act1\",\"2025/1\",\"Act 1\",\"2025-03-27\"" in csv_text
-        mock_get.assert_called_once_with(test_date, language="ENG", date_end=None, title_contains=None, category_type=None)
+        mock_get.assert_called_once_with(test_date, language="ENG", date_end=None, title_contains=None, category_type=None, institution_type=None)
 
     def test_with_date_end_and_title_contains(self, client) -> None:
         """Test get_acts_csv with date_end and title_contains parameters."""
@@ -291,7 +291,7 @@ class TestGetActsCsv:
 
         assert "\"celex_uri\",\"act_number\",\"title\",\"date\"" in csv_text
         mock_get.assert_called_once_with(
-            test_date, language="ENG", date_end=test_date_end, title_contains=title_filter, category_type=None
+            test_date, language="ENG", date_end=test_date_end, title_contains=title_filter, category_type=None, institution_type=None
         )
 
     def test_with_category_type(self, client):
@@ -303,7 +303,7 @@ class TestGetActsCsv:
             client.get_acts_csv(test_date, category_type=category_type)
 
         mock_get.assert_called_once_with(
-            test_date, language="ENG", date_end=None, title_contains=None, category_type=category_type
+            test_date, language="ENG", date_end=None, title_contains=None, category_type="RES", institution_type=None
         )
 
 
