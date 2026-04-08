@@ -1,0 +1,9 @@
+# Jupyter Notebooks - mark as documentation, not source code
+*.ipynb linguist-documentation
+
+# Docs and scripts
+docs/** linguist-documentation
+scripts/** linguist-documentation
+
+# Site generated files
+site/** linguist-generated

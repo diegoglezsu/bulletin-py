@@ -29,13 +29,13 @@ class TestInit:
     def test_with_defaults(self, mock_connector):
         """Test client initialization with default parameters."""
         DoueBulletinClient()
-        mock_connector.assert_called_once_with(endpoint=SPARQL_ENDPOINT, timeout=30)
+        mock_connector.assert_called_once_with(endpoint=SPARQL_ENDPOINT, timeout=300)
 
     def test_with_custom_endpoint(self, mock_connector):
         """Test client initialization with custom endpoint."""
         custom_endpoint = "https://custom.endpoint/sparql"
         DoueBulletinClient(endpoint=custom_endpoint)
-        mock_connector.assert_called_once_with(endpoint=custom_endpoint, timeout=30)
+        mock_connector.assert_called_once_with(endpoint=custom_endpoint, timeout=300)
 
     def test_with_custom_timeout(self, mock_connector):
         """Test client initialization with custom timeout."""
@@ -85,7 +85,7 @@ class TestGetActs:
             result = client.get_acts(test_date)
 
             mock_instance.build_acts_query.assert_called_once_with(
-                test_date, language="ENG", date_end=None, title_contains=None, category_type=None
+                test_date, language="ENG", date_end=None, title_contains=None, category_type=None, institution_type=None
             )
             mock_instance.execute_query.assert_called_once_with("SPARQL_QUERY")
             mock_parse.assert_called_once_with(mock_response)
@@ -104,7 +104,7 @@ class TestGetActs:
             client.get_acts(test_date, language=custom_language)
 
             mock_instance.build_acts_query.assert_called_once_with(
-                test_date, language=custom_language, date_end=None, title_contains=None, category_type=None
+                test_date, language=custom_language, date_end=None, title_contains=None, category_type=None, institution_type=None
             )
 
     def test_returns_parsed_results(self, client, mock_connector):
@@ -179,7 +179,7 @@ class TestGetActs:
             client.get_acts(test_date, date_end=test_date_end)
 
             mock_instance.build_acts_query.assert_called_once_with(
-                test_date, language="ENG", date_end=test_date_end, title_contains=None, category_type=None
+                test_date, language="ENG", date_end=test_date_end, title_contains=None, category_type=None, institution_type=None
             )
 
     def test_with_title_contains(self, client, mock_connector):
@@ -195,7 +195,7 @@ class TestGetActs:
             client.get_acts(test_date, title_contains=title_filter)
 
             mock_instance.build_acts_query.assert_called_once_with(
-                test_date, language="ENG", date_end=None, title_contains=title_filter, category_type=None
+                test_date, language="ENG", date_end=None, title_contains=title_filter, category_type=None, institution_type=None
             )
 
     def test_with_date_end_and_title_contains(self, client, mock_connector):
@@ -212,7 +212,7 @@ class TestGetActs:
             client.get_acts(test_date, date_end=test_date_end, title_contains=title_filter)
 
             mock_instance.build_acts_query.assert_called_once_with(
-                test_date, language="ENG", date_end=test_date_end, title_contains=title_filter, category_type=None
+                test_date, language="ENG", date_end=test_date_end, title_contains=title_filter, category_type=None, institution_type=None
             )
 
     def test_with_category_type(self, client, mock_connector):
@@ -228,7 +228,7 @@ class TestGetActs:
             client.get_acts(test_date, category_type=category_type)
 
             mock_instance.build_acts_query.assert_called_once_with(
-                test_date, language="ENG", date_end=None, title_contains=None, category_type=category_type
+                test_date, language="ENG", date_end=None, title_contains=None, category_type=category_type, institution_type=None
             )
 
 
@@ -260,7 +260,7 @@ class TestGetActsCsv:
 
         assert "\"celex_uri\",\"act_number\",\"title\",\"date\"" in csv_text
         assert "\"https://example.com/act1\",\"2025/1\",\"Act 1\",\"2025-03-27\"" in csv_text
-        mock_get.assert_called_once_with(test_date, language="ENG", date_end=None, title_contains=None, category_type=None)
+        mock_get.assert_called_once_with(test_date, language="ENG", date_end=None, title_contains=None, category_type=None, institution_type=None)
 
     def test_with_date_end_and_title_contains(self, client) -> None:
         """Test get_acts_csv with date_end and title_contains parameters."""
@@ -291,7 +291,7 @@ class TestGetActsCsv:
 
         assert "\"celex_uri\",\"act_number\",\"title\",\"date\"" in csv_text
         mock_get.assert_called_once_with(
-            test_date, language="ENG", date_end=test_date_end, title_contains=title_filter, category_type=None
+            test_date, language="ENG", date_end=test_date_end, title_contains=title_filter, category_type=None, institution_type=None
         )
 
     def test_with_category_type(self, client):
@@ -303,7 +303,7 @@ class TestGetActsCsv:
             client.get_acts_csv(test_date, category_type=category_type)
 
         mock_get.assert_called_once_with(
-            test_date, language="ENG", date_end=None, title_contains=None, category_type=category_type
+            test_date, language="ENG", date_end=None, title_contains=None, category_type="RES", institution_type=None
         )
 
 
@@ -332,3 +332,30 @@ class TestGetCategoryTypes:
         assert result[0].label == "Regulation"
         assert result[1].code == "DIR"
         assert result[1].label == "Directive"
+
+
+class TestGetInstitutionTypes:
+    """Tests for get_institution_types method."""
+
+    def test_fetches_institution_types(self, client, mock_connector):
+        """Test fetching institution types from the client."""
+        mock_instance = mock_connector.return_value
+        mock_instance.build_institution_types_query.return_value = "INSTITUTION_TYPES_QUERY"
+        mock_instance.execute_query.return_value = {
+            "results": {
+                "bindings": [
+                    {"code": {"value": "COM"}, "label": {"value": "Commission"}},
+                    {"code": {"value": "ECJ"}, "label": {"value": "Court of Justice"}},
+                ]
+            }
+        }
+
+        result = client.get_institution_types(language="ENG")
+
+        mock_instance.build_institution_types_query.assert_called_once_with(language="ENG")
+        mock_instance.execute_query.assert_called_once_with("INSTITUTION_TYPES_QUERY")
+        assert len(result) == 2
+        assert result[0].code == "COM"
+        assert result[0].label == "Commission"
+        assert result[1].code == "ECJ"
+        assert result[1].label == "Court of Justice"

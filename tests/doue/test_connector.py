@@ -90,6 +90,22 @@ class TestBuildCategoryTypesQuery:
         query = connector.build_category_types_query(language="SPA")
         assert 'FILTER(LANG(?label) = "es")' in query
 
+class TestBuildInstitutionTypesQuery:
+    """Tests for build_institution_types_query method."""
+
+    def test_default_language(self, connector):
+        """Test query building for institution types with default language."""
+        query = connector.build_institution_types_query()
+        assert "corporate-body" in query
+        assert 'FILTER(LANG(?label) = "en")' in query
+        assert "DISTINCT ?code ?label" in query
+
+    def test_spanish_language(self, connector):
+        """Test query building for institution types with Spanish language."""
+        query = connector.build_institution_types_query(language="SPA")
+        assert "corporate-body" in query
+        assert 'FILTER(LANG(?label) = "es")' in query
+
 
 class TestExecuteQuery:
     """Tests for execute_query method."""
@@ -159,7 +175,7 @@ class TestExecuteQuery:
             assert result == expected_response
             mock_post.assert_called_once()
             call_kwargs = mock_post.call_args[1]
-            assert call_kwargs["timeout"] == 30
+            assert call_kwargs["timeout"] == 300
             assert call_kwargs["headers"]["Accept"] == "application/sparql-results+json"
 
 

@@ -4,8 +4,8 @@ from datetime import date
 
 import pytest
 
-from bulletin.doue.converters import acts_to_csv, parse_acts_results, parse_category_types_results
-from bulletin.doue.api.models import DoueOfficialAct, CategoryType
+from bulletin.doue.converters import acts_to_csv, parse_acts_results, parse_category_types_results, parse_institution_types_results
+from bulletin.doue.api.models import DoueOfficialAct, CategoryType, InstitutionType
 
 
 class TestParseActsResults:
@@ -111,9 +111,10 @@ class TestParseActsResults:
             parse_acts_results(response)
 
     def test_raises_for_invalid_binding_entry(self) -> None:
+        """Test that parsing raises error when binding is not a mapping."""
         response = {"results": {"bindings": ["not-a-mapping"]}}
 
-        with pytest.raises(TypeError, match="each binding must be a mapping"):
+        with pytest.raises(TypeError, match="each Act binding must be a mapping"):
             parse_acts_results(response)
 
 
@@ -239,7 +240,7 @@ class TestParseCategoryTypesResults:
         """Test that parsing raises error when binding is not a mapping."""
         response = {"results": {"bindings": ["not-a-mapping"]}}
 
-        with pytest.raises(TypeError, match="each binding must be a mapping"):
+        with pytest.raises(TypeError, match="each category binding must be a mapping"):
             parse_category_types_results(response)
 
     def test_raises_for_missing_bindings(self) -> None:
@@ -248,3 +249,102 @@ class TestParseCategoryTypesResults:
 
         with pytest.raises(KeyError, match="Invalid SPARQL response"):
             parse_category_types_results(response)
+
+
+class TestParseInstitutionTypesResults:
+    """Tests for parse_institution_types_results converter."""
+
+    def test_with_valid_data(self) -> None:
+        """Test parsing institution types with valid SPARQL response."""
+        response = {
+            "results": {
+                "bindings": [
+                    {
+                        "code": {"value": "COM"},
+                        "label": {"value": "European Commission"},
+                    },
+                    {
+                        "code": {"value": "PARL"},
+                        "label": {"value": "European Parliament"},
+                    },
+                ]
+            }
+        }
+
+        types = parse_institution_types_results(response)
+
+        assert len(types) == 2
+        assert types[0] == InstitutionType(code="COM", label="European Commission")
+        assert types[1] == InstitutionType(code="PARL", label="European Parliament")
+
+    def test_with_single_type(self) -> None:
+        """Test parsing a single institution type."""
+        response = {
+            "results": {
+                "bindings": [
+                    {
+                        "code": {"value": "COM"},
+                        "label": {"value": "European Commission"},
+                    }
+                ]
+            }
+        }
+
+        types = parse_institution_types_results(response)
+
+        assert len(types) == 1
+        assert types[0].code == "COM"
+        assert types[0].label == "European Commission"
+
+    def test_raises_for_missing_required_code(self) -> None:
+        """Test that parsing raises error when required 'code' field is missing."""
+        response = {
+            "results": {
+                "bindings": [
+                    {
+                        "label": {"value": "European Commission"},
+                        # Missing code
+                    }
+                ]
+            }
+        }
+
+        with pytest.raises(KeyError, match="Missing required field 'code'"):
+            parse_institution_types_results(response)
+
+    def test_raises_for_missing_required_label(self) -> None:
+        """Test that parsing raises error when required 'label' field is missing."""
+        response = {
+            "results": {
+                "bindings": [
+                    {
+                        "code": {"value": "REG"},
+                        # Missing label
+                    }
+                ]
+            }
+        }
+
+        with pytest.raises(KeyError, match="Missing required field 'label'"):
+            parse_institution_types_results(response)
+
+    def test_raises_for_invalid_bindings_type(self) -> None:
+        """Test that parsing raises error when bindings is not a list."""
+        response = {"results": {"bindings": {"not": "a-list"}}}
+
+        with pytest.raises(TypeError, match="'bindings' must be a list"):
+            parse_institution_types_results(response)
+
+    def test_raises_for_invalid_binding_entry(self) -> None:
+        """Test that parsing raises error when binding is not a mapping."""
+        response = {"results": {"bindings": ["not-a-mapping"]}}
+
+        with pytest.raises(TypeError, match="each institution binding must be a mapping"):
+            parse_institution_types_results(response)
+
+    def test_raises_for_missing_bindings(self) -> None:
+        """Test that parsing raises error when response is malformed."""
+        response = {"results": {}}
+
+        with pytest.raises(KeyError, match="Invalid SPARQL response"):
+            parse_institution_types_results(response)
