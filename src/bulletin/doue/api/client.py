@@ -4,14 +4,14 @@ High-level client for querying EU Official Journal (DOUE) acts.
 
 from ..repository._connector import DoueConnector
 from ..constants import DEFAULT_LANGUAGE, SPARQL_ENDPOINT
-from ..converters import acts_to_csv, parse_acts_results, parse_category_types_results
-from .models import DoueOfficialAct, CategoryType
+from ..converters import acts_to_csv, parse_acts_results, parse_category_types_results, parse_institution_types_results
+from .models import DoueOfficialAct, CategoryType, InstitutionType
 
 
 class DoueBulletinClient:
     """Client to query EU Official Journal acts."""
 
-    def __init__(self, endpoint: str = SPARQL_ENDPOINT, timeout: int = 30):
+    def __init__(self, endpoint: str = SPARQL_ENDPOINT, timeout: int = 300):
         self._connector = DoueConnector(endpoint=endpoint, timeout=timeout)
 
     def get_acts(
@@ -51,7 +51,7 @@ class DoueBulletinClient:
         return acts_to_csv(acts)
 
     def get_category_types(self, language: str = DEFAULT_LANGUAGE) -> list[CategoryType]:
-        """Fetch the list of possible category types from the authority list.
+        """Fetch the list of possible category types from the authority list. This method may last a few minutes due to the size of the authority list.
 
         Args:
             language: Language code (default: "ENG"). Examples: "ENG", "SPA", "FRA"...
@@ -62,3 +62,16 @@ class DoueBulletinClient:
         query = self._connector.build_category_types_query(language=language)
         response = self._connector.execute_query(query)
         return parse_category_types_results(response)
+    
+    def get_institution_types(self, language: str = DEFAULT_LANGUAGE) -> list[InstitutionType]:
+        """Fetch the list of possible institution types from the authority list. This method may last a few minutes due to the size of the authority list.
+
+        Args:
+            language: Language code (default: "ENG"). Examples: "ENG", "SPA", "FRA"...
+
+        Returns:
+            A list of InstitutionType objects with 'code' and 'label' attributes.
+        """
+        query = self._connector.build_institution_types_query(language=language)
+        response = self._connector.execute_query(query)
+        return parse_institution_types_results(response)

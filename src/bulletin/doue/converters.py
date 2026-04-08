@@ -3,7 +3,7 @@ import csv
 import io
 from typing import Any
 
-from .api.models import DoueOfficialAct, CategoryType
+from .api.models import DoueOfficialAct, CategoryType, InstitutionType
 
 
 def parse_acts_results(results: Mapping[str, Any]) -> list[DoueOfficialAct]:
@@ -64,5 +64,24 @@ def parse_category_types_results(results: Mapping[str, Any]) -> list[CategoryTyp
         if not isinstance(binding, Mapping):
             raise TypeError("Invalid SPARQL response: each binding must be a mapping")
         types.append(CategoryType._from_binding(binding))
+
+    return types
+
+
+def parse_institution_types_results(results: Mapping[str, Any]) -> list[InstitutionType]:
+    """Parse SPARQL results into a list of InstitutionType objects."""
+    try:
+        bindings = results["results"]["bindings"]
+    except KeyError as exc:
+        raise KeyError("Invalid SPARQL response: missing 'results.bindings'") from exc
+
+    if not isinstance(bindings, list):
+        raise TypeError("Invalid SPARQL response: 'bindings' must be a list")
+
+    types: list[InstitutionType] = []
+    for binding in bindings:
+        if not isinstance(binding, Mapping):
+            raise TypeError("Invalid SPARQL response: each binding must be a mapping")
+        types.append(InstitutionType._from_binding(binding))
 
     return types

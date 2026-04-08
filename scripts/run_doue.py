@@ -38,6 +38,11 @@ def main() -> int:
     #print("CSV Output:")
     #print(csv_output)
 
+    institutions = client.get_institution_types(language="ENG")
+    print("Institution Types:")
+    for it in institutions[0:5]:
+        print(f"  - {it.code}: {it.label}")
+
     return 0
 
 

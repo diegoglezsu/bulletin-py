@@ -29,13 +29,13 @@ class TestInit:
     def test_with_defaults(self, mock_connector):
         """Test client initialization with default parameters."""
         DoueBulletinClient()
-        mock_connector.assert_called_once_with(endpoint=SPARQL_ENDPOINT, timeout=30)
+        mock_connector.assert_called_once_with(endpoint=SPARQL_ENDPOINT, timeout=300)
 
     def test_with_custom_endpoint(self, mock_connector):
         """Test client initialization with custom endpoint."""
         custom_endpoint = "https://custom.endpoint/sparql"
         DoueBulletinClient(endpoint=custom_endpoint)
-        mock_connector.assert_called_once_with(endpoint=custom_endpoint, timeout=30)
+        mock_connector.assert_called_once_with(endpoint=custom_endpoint, timeout=300)
 
     def test_with_custom_timeout(self, mock_connector):
         """Test client initialization with custom timeout."""
@@ -332,3 +332,30 @@ class TestGetCategoryTypes:
         assert result[0].label == "Regulation"
         assert result[1].code == "DIR"
         assert result[1].label == "Directive"
+
+
+class TestGetInstitutionTypes:
+    """Tests for get_institution_types method."""
+
+    def test_fetches_institution_types(self, client, mock_connector):
+        """Test fetching institution types from the client."""
+        mock_instance = mock_connector.return_value
+        mock_instance.build_institution_types_query.return_value = "INSTITUTION_TYPES_QUERY"
+        mock_instance.execute_query.return_value = {
+            "results": {
+                "bindings": [
+                    {"code": {"value": "COM"}, "label": {"value": "Commission"}},
+                    {"code": {"value": "ECJ"}, "label": {"value": "Court of Justice"}},
+                ]
+            }
+        }
+
+        result = client.get_institution_types(language="ENG")
+
+        mock_instance.build_institution_types_query.assert_called_once_with(language="ENG")
+        mock_instance.execute_query.assert_called_once_with("INSTITUTION_TYPES_QUERY")
+        assert len(result) == 2
+        assert result[0].code == "COM"
+        assert result[0].label == "Commission"
+        assert result[1].code == "ECJ"
+        assert result[1].label == "Court of Justice"

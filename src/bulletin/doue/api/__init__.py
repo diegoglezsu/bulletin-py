@@ -7,4 +7,5 @@ __all__ = [
     "DoueBulletinClient",
     "DoueOfficialAct",
     "CategoryType",
+    "InstitutionType",
 ]

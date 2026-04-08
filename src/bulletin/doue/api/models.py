@@ -99,3 +99,23 @@ class CategoryType:
             code=_required_value(binding, "code"),
             label=_required_value(binding, "label"),
         )
+@dataclass
+class InstitutionType:
+    """Represents an institution type from the authority list."""
+    code: str
+    label: str
+
+    def _to_dict(self) -> dict[str, str]:
+        """Return a serializable dict representation of the institution type."""
+        return {
+            "code": self.code,
+            "label": self.label,
+        }
+    
+    @classmethod
+    def _from_binding(cls, binding: Mapping[str, Any]) -> InstitutionType:
+        """Build an InstitutionType from one SPARQL binding item."""
+        return cls(
+            code=_required_value(binding, "code"),
+            label=_required_value(binding, "label"),
+        )
