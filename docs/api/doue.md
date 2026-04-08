@@ -28,6 +28,12 @@ from bulletin.doue.api.models import DoueOfficialAct
       show_root_heading: true
       show_root_toc_entry: true
 
+::: bulletin.doue.api.models.CategoryType
+    options:
+      heading_level: 3
+      show_root_heading: true
+      show_root_toc_entry: true
+
 ## Constants
 
 ::: bulletin.doue.constants.LANGUAGE_CODE_MAP

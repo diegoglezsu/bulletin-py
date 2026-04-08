@@ -10,11 +10,12 @@ def main() -> int:
 
     date = "2026-01-01"
     date_end = "2026-03-31"
-    title_contains = "euronest"
+    #title_contains = "euronest"
     language = "SPA"
+    category_type = "ANNOUNC"
 
     try:
-        acts = client.get_acts(date=date, language=language, date_end=date_end, title_contains=title_contains)
+        acts = client.get_acts(date=date, language=language, date_end=date_end, title_contains=None, category_type=category_type)
     except Exception as exc:
         print(f"Error while fetching acts: {exc}", file=sys.stderr)
         return 1

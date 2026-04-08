@@ -24,6 +24,7 @@ class DoueConnector:
         language: str = DEFAULT_LANGUAGE,
         date_end: str | None = None,
         title_contains: str | None = None,
+        category_type: str | None = None,
     ) -> str:
         """Build a SPARQL query for Official Journal acts on a given date.
 
@@ -31,6 +32,7 @@ class DoueConnector:
             date: Publication date in ISO format (e.g. "2025-03-27").
             date_end: End date in ISO format (YYYY-MM-DD). If provided, fetch acts published between `date` and `date_end` inclusive.
             title_contains: Case-insensitive substring filter on title.
+            category_type: Filter by category type code (e.g. "RES" for Resolution). Optional.
             language: ISO language code (default: "ENG").
 
         Returns:
@@ -51,6 +53,11 @@ class DoueConnector:
             title_contains = title_contains.strip()
             if not title_contains:
                 raise QueryError("title_contains filter cannot be empty.")
+            
+        if category_type is not None:
+            category_type = category_type.strip()
+            if not category_type:
+                raise QueryError("category_type filter cannot be empty.")
 
         lang_code = LANGUAGE_CODE_MAP.get(language)
         if lang_code is None:
@@ -63,7 +70,7 @@ class DoueConnector:
             f"http://publications.europa.eu/resource/authority/language/{language}"
         )
 
-        filters: list[str] = self._get_filters(date, date_end, title_contains)
+        filters: list[str] = self._get_filters(date, date_end, title_contains, category_type)
 
         query_template = """
 PREFIX cdm: <http://publications.europa.eu/ontology/cdm#>
@@ -158,8 +165,37 @@ ORDER BY ?sectionCode ?subsectionCode ?categoryLabel ?institutionLabel
                 endpoint=self.endpoint,
             ) from e
 
+    def build_category_types_query(self, language: str = DEFAULT_LANGUAGE) -> str:
+        """Build a SPARQL query to fetch the list of category types.
 
-    def _get_filters(self, date: str, date_end: str | None, title_contains: str | None) -> list[str]:
+        Args:
+            language: ISO language code (default: "ENG").
+
+        Returns:
+            The SPARQL query string.
+        """
+        lang_code = LANGUAGE_CODE_MAP.get(language, "en")
+        
+        query = f"""
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX at: <http://publications.europa.eu/ontology/authority/>
+
+SELECT DISTINCT ?code ?label
+WHERE {{
+  ?uri a skos:Concept ;
+       skos:inScheme <http://publications.europa.eu/resource/authority/resource-type> ;
+       at:authority-code ?code .
+  
+  OPTIONAL {{
+    ?uri skos:prefLabel ?label .
+    FILTER(LANG(?label) = "{lang_code}")
+  }}
+}}
+ORDER BY ?code
+"""
+        return query
+
+    def _get_filters(self, date: str, date_end: str | None, title_contains: str | None, category_type: str | None = None) -> list[str]:
         filters: list[str] = []
         if date_end is not None:
             filters.append(f'FILTER(?date >= "{date}"^^xsd:date)')
@@ -172,6 +208,9 @@ ORDER BY ?sectionCode ?subsectionCode ?categoryLabel ?institutionLabel
             filters.append(
                 f'FILTER(CONTAINS(LCASE(STR(?title)), LCASE("{escaped_title}")))'
             )
+
+        if category_type is not None:
+            filters.append(f'FILTER(?categoryCode = "{category_type}")')
 
         filters.append(
             'FILTER(STRSTARTS(STR(?act), "http://publications.europa.eu/resource/celex/"))'
