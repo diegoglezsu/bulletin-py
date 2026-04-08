@@ -25,6 +25,7 @@ class DoueConnector:
         date_end: str | None = None,
         title_contains: str | None = None,
         category_type: str | None = None,
+        institution_type: str | None = None,
     ) -> str:
         """Build a SPARQL query for Official Journal acts on a given date.
 
@@ -33,6 +34,7 @@ class DoueConnector:
             date_end: End date in ISO format (YYYY-MM-DD). If provided, fetch acts published between `date` and `date_end` inclusive.
             title_contains: Case-insensitive substring filter on title.
             category_type: Filter by category type code (e.g. "RES" for Resolution). Optional.
+            institution_type: Filter by institution type code (e.g. "COM" for Commission). Optional.
             language: ISO language code (default: "ENG").
 
         Returns:
@@ -59,6 +61,11 @@ class DoueConnector:
             if not category_type:
                 raise QueryError("category_type filter cannot be empty.")
 
+        if institution_type is not None:
+            institution_type = institution_type.strip()
+            if not institution_type:
+                raise QueryError("institution_type filter cannot be empty.")
+
         lang_code = LANGUAGE_CODE_MAP.get(language)
         if lang_code is None:
             raise QueryError(
@@ -70,7 +77,7 @@ class DoueConnector:
             f"http://publications.europa.eu/resource/authority/language/{language}"
         )
 
-        filters: list[str] = self._get_filters(date, date_end, title_contains, category_type)
+        filters: list[str] = self._get_filters(date, date_end, title_contains, category_type, institution_type)
 
         query_template = """
 PREFIX cdm: <http://publications.europa.eu/ontology/cdm#>
@@ -228,7 +235,7 @@ ORDER BY ?code
                 endpoint=self.endpoint,
             ) from e
 
-    def _get_filters(self, date: str, date_end: str | None, title_contains: str | None, category_type: str | None = None) -> list[str]:
+    def _get_filters(self, date: str, date_end: str | None, title_contains: str | None, category_type: str | None = None, institution_type: str | None = None) -> list[str]:
         filters: list[str] = []
         if date_end is not None:
             filters.append(f'FILTER(?date >= "{date}"^^xsd:date)')
@@ -244,6 +251,9 @@ ORDER BY ?code
 
         if category_type is not None:
             filters.append(f'FILTER(?categoryCode = "{category_type}")')
+
+        if institution_type is not None:
+            filters.append(f'FILTER(?institutionCode = "{institution_type}")')
 
         filters.append(
             'FILTER(STRSTARTS(STR(?act), "http://publications.europa.eu/resource/celex/"))'

@@ -15,7 +15,7 @@ def main() -> int:
     category_type = "ANNOUNC"
 
     try:
-        acts = client.get_acts(date=date, language=language, date_end=date_end, title_contains=None, category_type=category_type)
+        acts = client.get_acts(date=date, language=language, date_end=date_end, title_contains=None, category_type=category_type, institution_type=None)
     except Exception as exc:
         print(f"Error while fetching acts: {exc}", file=sys.stderr)
         return 1
@@ -37,11 +37,6 @@ def main() -> int:
     #csv_output = client.get_acts_csv(date=date, date_end=date_end, language=language)  # Example of fetching CSV output
     #print("CSV Output:")
     #print(csv_output)
-
-    institutions = client.get_institution_types(language="ENG")
-    print("Institution Types:")
-    for it in institutions[0:5]:
-        print(f"  - {it.code}: {it.label}")
 
     return 0
 

@@ -15,7 +15,7 @@ class DoueBulletinClient:
         self._connector = DoueConnector(endpoint=endpoint, timeout=timeout)
 
     def get_acts(
-        self, date: str, language: str = DEFAULT_LANGUAGE, date_end: str | None = None, title_contains: str | None = None, category_type: str | None = None
+        self, date: str, language: str = DEFAULT_LANGUAGE, date_end: str | None = None, title_contains: str | None = None, category_type: str | None = None, institution_type: str | None = None
     ) -> list[DoueOfficialAct]:
         """Fetch Official Journal acts for a given publication date.
 
@@ -23,31 +23,33 @@ class DoueBulletinClient:
             date: Publication date in ISO format (e.g. "2025-03-27").
             date_end: End date in ISO format (e.g. "2025-03-27"). If provided, fetch acts published between `date` and `date_end` inclusive.
             title_contains: Case-insensitive substring filter on title.
-            category_type: Filter by category type code (e.g. "RES" for Resolution). Optional.
-            language: Language code (default: "ENG"). Supported values are defined in `LANGUAGE_CODE_MAP`. Examples: "ENG", "FRA", "DEU", "SPA"...
+            category_type: Filter by category type code (e.g. "RES" for Resolution, "ANNOUNC" for Announcement). More available at <http://publications.europa.eu/resource/authority/resource-type>. Optional.
+            institution_type: Filter by institution type code (e.g. "CONSIL" for Council of the European Union, "COM" for Commission). More available at <http://publications.europa.eu/resource/authority/corporate-body>. Optional.
+            language: ISO Language code (default: "ENG"). Supported values are defined in `LANGUAGE_CODE_MAP`. Examples: "ENG", "FRA", "DEU", "SPA"...
 
         Returns:
             A list of DoueOfficialAct objects.
         """
-        query = self._connector.build_acts_query(date, language=language, date_end=date_end, title_contains=title_contains, category_type=category_type)
+        query = self._connector.build_acts_query(date, language=language, date_end=date_end, title_contains=title_contains, category_type=category_type, institution_type=institution_type)
         response = self._connector.execute_query(query)
         return parse_acts_results(response)
 
-    def get_acts_csv(self, date: str, date_end: str | None = None, title_contains: str | None = None, category_type: str | None = None, language: str = DEFAULT_LANGUAGE) -> str:
+    def get_acts_csv(self, date: str, date_end: str | None = None, title_contains: str | None = None, category_type: str | None = None, institution_type: str | None = None, language: str = DEFAULT_LANGUAGE) -> str:
         """
-        Fetch Official Journal acts for a given date and return CSV output.
+        Fetch Official Journal acts for a given date and return CSV output. Uses get_acts internally, so supports the same filters.
 
         Args:
             date: Publication date in ISO format (e.g. "2025-03-27").
             date_end: End date in ISO format (e.g. "2025-03-27"). If provided, fetch acts published between `date` and `date_end` inclusive.
             title_contains: Case-insensitive substring filter on title.
-            category_type: Filter by category type code (e.g. "RES" for Resolution). Optional.
-            language: Language code (default: "ENG"). Supported values are defined in `LANGUAGE_CODE_MAP`. Example: "ENG", "FRA", "DEU", "SPA".
+            category_type: Filter by category type code (e.g. "RES" for Resolution, "ANNOUNC" for Announcement). More available at <http://publications.europa.eu/resource/authority/resource-type>. Optional.
+            institution_type: Filter by institution type code (e.g. "CONSIL" for Council of the European Union, "COM" for Commission). More available at <http://publications.europa.eu/resource/authority/corporate-body>. Optional.
+            language: ISO Language code (default: "ENG"). Supported values are defined in `LANGUAGE_CODE_MAP`. Examples: "ENG", "FRA", "DEU", "SPA"...
         Returns:
             A string containing the CSV representation of the acts.
 
         """
-        acts = self.get_acts(date, language=language, date_end=date_end, title_contains=title_contains, category_type=category_type)
+        acts = self.get_acts(date, language=language, date_end=date_end, title_contains=title_contains, category_type=category_type, institution_type=institution_type)
         return acts_to_csv(acts)
 
     def get_category_types(self, language: str = DEFAULT_LANGUAGE) -> list[CategoryType]:
