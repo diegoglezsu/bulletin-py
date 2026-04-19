@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "bulletin-fetcher"
-version = "0.1.0"
+version = "0.1.1"
 description = "A Python library for programmatic access to EU official bulletins"
 readme = "README.md"
 requires-python = ">=3.7"
@@ -16,7 +16,7 @@ keywords = ["bulletin", "official", "legal", "european union", "eu", "sparql"]
 classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
-    "Intended Audience :: Legal Professionals",
+    "Intended Audience :: Legal Industry",
     "Intended Audience :: Science/Research",
     "Topic :: Scientific/Engineering :: Information Analysis",
     "Topic :: Text Processing :: General",
