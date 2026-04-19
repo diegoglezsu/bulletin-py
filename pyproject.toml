@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "bulletin-fetcher"
 version = "0.1.0"
-description = "A Python package for searching and managing official bulletins"
+description = "A Python library for programmatic access to EU official bulletins"
 readme = "README.md"
 requires-python = ">=3.7"
 license-files = ["LICENSE"]
@@ -21,6 +21,11 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Operating System :: OS Independent",
+    "Intended Audience :: Legal Industry",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Text Processing :: General",
+    "License :: OSI Approved :: MIT License",
 ]
 dependencies = [
     "requests>=2.25.0",
@@ -28,6 +33,7 @@ dependencies = [
 
 [project.urls]
 Homepage = "https://diegoglezsu.github.io/bulletin-fetcher"
+Documentation = "https://diegoglezsu.github.io/bulletin-fetcher"
 Repository = "https://github.com/diegoglezsu/bulletin-fetcher.git"
 Issues = "https://github.com/diegoglezsu/bulletin-fetcher/issues"
 
