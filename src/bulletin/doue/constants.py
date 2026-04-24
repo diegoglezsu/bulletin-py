@@ -1,7 +1,10 @@
 """Constants used by the DOUE client and repository layers."""
 
+#: Base domain for EU publications resources.
+CELLAR_DOMAIN = "publications.europa.eu"
+
 #: EUR-Lex / Cellar SPARQL endpoint used for DOUE queries.
-SPARQL_ENDPOINT = "https://publications.europa.eu/webapi/rdf/sparql"
+SPARQL_ENDPOINT = f"https://{CELLAR_DOMAIN}/webapi/rdf/sparql"
 
 # Mapping from EU authority language codes to ISO 639-1 codes
 # used in SPARQL FILTER(LANG(...)) clauses

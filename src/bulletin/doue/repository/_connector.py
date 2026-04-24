@@ -8,7 +8,7 @@ from datetime import date
 from typing import Optional
 import requests  # type: ignore
 
-from ..constants import SPARQL_ENDPOINT, LANGUAGE_CODE_MAP, DEFAULT_LANGUAGE
+from ..constants import SPARQL_ENDPOINT, LANGUAGE_CODE_MAP, DEFAULT_LANGUAGE, CELLAR_DOMAIN
 from ..exceptions import EndpointError, QueryError
 
 
@@ -75,68 +75,69 @@ class DoueConnector:
             )
 
         language_uri = (
-            f"http://publications.europa.eu/resource/authority/language/{language}"
+            f"http://{CELLAR_DOMAIN}/resource/authority/language/{language}"
         )
 
-        filters: list[str] = self._get_filters(date, date_end, title_contains, category_type, institution_type)
+        filters: list[str] = self._get_act_filters(date, date_end, title_contains, category_type, institution_type)
 
         query_template = """
-PREFIX cdm: <http://publications.europa.eu/ontology/cdm#>
-PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-PREFIX owl: <http://www.w3.org/2002/07/owl#>
-PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+            PREFIX cdm: <http://{cellar_domain}/ontology/cdm#>
+            PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+            PREFIX owl: <http://www.w3.org/2002/07/owl#>
+            PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 
-SELECT DISTINCT
-  ?act ?actNumber ?title ?date
-  ?sectionCode ?subsectionCode
-  ?categoryCode ?categoryUri ?categoryLabel
-  ?institutionCode ?institutionUri ?institutionLabel
-WHERE {{
-  ?c_act cdm:official-journal-act_date_publication ?date ;
-         owl:sameAs ?act .
+            SELECT DISTINCT
+            ?act ?actNumber ?title ?date
+            ?sectionCode ?subsectionCode
+            ?categoryCode ?categoryUri ?categoryLabel
+            ?institutionCode ?institutionUri ?institutionLabel
+            WHERE {{
+            ?c_act cdm:official-journal-act_date_publication ?date ;
+                    owl:sameAs ?act .
 
-  ?expr cdm:expression_belongs_to_work ?c_act ;
-        cdm:expression_uses_language <{language_uri}> ;
-        cdm:expression_title ?title .
+            ?expr cdm:expression_belongs_to_work ?c_act ;
+                    cdm:expression_uses_language <{language_uri}> ;
+                    cdm:expression_title ?title .
 
-  OPTIONAL {{ ?c_act cdm:official-journal-act_section_oj ?sectionCode . }}
-  OPTIONAL {{ ?c_act cdm:official-journal-act_subsection_oj ?subsectionCode . }}
+            OPTIONAL {{ ?c_act cdm:official-journal-act_section_oj ?sectionCode . }}
+            OPTIONAL {{ ?c_act cdm:official-journal-act_subsection_oj ?subsectionCode . }}
 
-  OPTIONAL {{
-    ?c_act cdm:work_has_resource-type ?categoryUri .
-    OPTIONAL {{
-      ?categoryUri skos:prefLabel ?categoryLabel .
-      FILTER(LANG(?categoryLabel) = "{lang_code}")
-    }}
-  }}
+            OPTIONAL {{
+                ?c_act cdm:work_has_resource-type ?categoryUri .
+                OPTIONAL {{
+                ?categoryUri skos:prefLabel ?categoryLabel .
+                FILTER(LANG(?categoryLabel) = "{lang_code}")
+                }}
+            }}
 
-  OPTIONAL {{
-    ?c_act cdm:work_created_by_agent ?institutionUri .
-    OPTIONAL {{
-      ?institutionUri skos:prefLabel ?institutionLabel .
-      FILTER(LANG(?institutionLabel) = "{lang_code}")
-    }}
-  }}
+            OPTIONAL {{
+                ?c_act cdm:work_created_by_agent ?institutionUri .
+                OPTIONAL {{
+                ?institutionUri skos:prefLabel ?institutionLabel .
+                FILTER(LANG(?institutionLabel) = "{lang_code}")
+                }}
+            }}
 
-  BIND(
-    IF(BOUND(?categoryUri), REPLACE(STR(?categoryUri), ".*/", ""), "")
-    AS ?categoryCode
-  )
+            BIND(
+                IF(BOUND(?categoryUri), REPLACE(STR(?categoryUri), ".*/", ""), "")
+                AS ?categoryCode
+            )
 
-  BIND(
-    IF(BOUND(?institutionUri), REPLACE(STR(?institutionUri), ".*/", ""), "")
-    AS ?institutionCode
-  )
+            BIND(
+                IF(BOUND(?institutionUri), REPLACE(STR(?institutionUri), ".*/", ""), "")
+                AS ?institutionCode
+            )
 
-  {filters_str}
+            {filters_str}
 
-  OPTIONAL {{ ?c_act cdm:official-journal-act_number ?actNumber . }}
-}}
-ORDER BY ?sectionCode ?subsectionCode ?categoryLabel ?institutionLabel
-"""
+            OPTIONAL {{ ?c_act cdm:official-journal-act_number ?actNumber . }}
+            }}
+            ORDER BY ?sectionCode ?subsectionCode ?categoryLabel ?institutionLabel
+        """
         return query_template.format(
             language_uri=language_uri,
             lang_code=lang_code,
+            cellar_domain=CELLAR_DOMAIN,
             filters_str="\n  ".join(filters),
         )
 
@@ -152,22 +153,22 @@ ORDER BY ?sectionCode ?subsectionCode ?categoryLabel ?institutionLabel
         lang_code = LANGUAGE_CODE_MAP.get(language, "en")
         
         query = f"""
-PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
-PREFIX at: <http://publications.europa.eu/ontology/authority/>
+            PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+            PREFIX at: <http://{CELLAR_DOMAIN}/ontology/authority/>
 
-SELECT DISTINCT ?code ?label
-WHERE {{
-  ?uri a skos:Concept ;
-       skos:inScheme <http://publications.europa.eu/resource/authority/resource-type> ;
-       at:authority-code ?code .
-  
-  OPTIONAL {{
-    ?uri skos:prefLabel ?label .
-    FILTER(LANG(?label) = "{lang_code}")
-  }}
-}}
-ORDER BY ?code
-"""
+            SELECT DISTINCT ?code ?label
+            WHERE {{
+            ?uri a skos:Concept ;
+                skos:inScheme <http://{CELLAR_DOMAIN}/resource/authority/resource-type> ;
+                at:authority-code ?code .
+            
+            OPTIONAL {{
+                ?uri skos:prefLabel ?label .
+                FILTER(LANG(?label) = "{lang_code}")
+            }}
+            }}
+            ORDER BY ?code
+        """
         return query
     
     def build_institution_types_query(self, language: str = DEFAULT_LANGUAGE) -> str:
@@ -185,22 +186,22 @@ ORDER BY ?code
         lang_code = LANGUAGE_CODE_MAP.get(language, "en")
         
         query = f"""
-PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
-PREFIX at: <http://publications.europa.eu/ontology/authority/>
+            PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+            PREFIX at: <http://{CELLAR_DOMAIN}/ontology/authority/>
 
-SELECT DISTINCT ?code ?label
-WHERE {{
-  ?uri a skos:Concept ;
-       skos:inScheme <http://publications.europa.eu/resource/authority/corporate-body> ;
-       at:authority-code ?code .
-  
-  OPTIONAL {{
-    ?uri skos:prefLabel ?label .
-    FILTER(LANG(?label) = "{lang_code}")
-  }}
-}}
-ORDER BY ?code
-"""
+            SELECT DISTINCT ?code ?label
+            WHERE {{
+            ?uri a skos:Concept ;
+                skos:inScheme <http://{CELLAR_DOMAIN}/resource/authority/corporate-body> ;
+                at:authority-code ?code .
+            
+            OPTIONAL {{
+                ?uri skos:prefLabel ?label .
+                FILTER(LANG(?label) = "{lang_code}")
+            }}
+            }}
+            ORDER BY ?code
+        """
         return query
 
     def execute_query(self, query: str) -> dict:
@@ -236,7 +237,7 @@ ORDER BY ?code
                 endpoint=self.endpoint,
             ) from e
 
-    def _get_filters(self, date: str, date_end: Optional[str] = None, title_contains: Optional[str] = None, category_type: Optional[str] = None, institution_type: Optional[str] = None) -> list[str]:
+    def _get_act_filters(self, date: str, date_end: Optional[str] = None, title_contains: Optional[str] = None, category_type: Optional[str] = None, institution_type: Optional[str] = None) -> list[str]:
         filters: list[str] = []
         if date_end is not None:
             filters.append(f'FILTER(?date >= "{date}"^^xsd:date)')
@@ -257,7 +258,7 @@ ORDER BY ?code
             filters.append(f'FILTER(?institutionCode = "{institution_type}")')
 
         filters.append(
-            'FILTER(STRSTARTS(STR(?act), "http://publications.europa.eu/resource/celex/"))'
+            f'FILTER(STRSTARTS(STR(?act), "http://{CELLAR_DOMAIN}/resource/celex/"))'
         )
         return filters
 
