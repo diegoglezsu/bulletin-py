@@ -26,7 +26,7 @@ def main() -> int:
     print("=" * 60)
     print("Generator of Reproducible Dataset: EU Disease Acts")
     print("=" * 60)
-    print(f"Parameters:")
+    print("Parameters:")
     print(f"- Start date : {DATE_START}")
     print(f"- End date    : {DATE_END}")
     print(f"- Title keyword: '{TITLE_KEYWORD}'")
