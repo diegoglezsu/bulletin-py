@@ -11,7 +11,7 @@
 
 ![Bulletin Fetcher Logo](https://raw.githubusercontent.com/diegoglezsu/bulletin-fetcher/main/docs/assets/logo.jpg)
 
-**bulletin-fetcher** is a Python library for programmatic access to legal acts published in official bulletins, with current support for the **Official Journal of the European Union (OJEU / DOUE)** through the EUR-Lex / Cellar SPARQL endpoint.
+**bulletin-fetcher** is a Python library for programmatic access to legal acts published in official bulletins, with current support for the **Official Journal of the European Union** through the EUR-Lex / Cellar SPARQL endpoint.
 
 The library provides a high-level Python API that allows developers, researchers and legal-domain experts to search EU legal acts without writing SPARQL queries directly.
 
@@ -55,9 +55,9 @@ pip install bulletin-fetcher
 Fetch acts for a publication date:
 
 ```python
-from bulletin.doue.api.client import DoueBulletinClient
+from bulletin.eurlex.api.client import EurlexBulletinClient
 
-client = DoueBulletinClient()
+client = EurlexBulletinClient()
 acts = client.get_acts( 
     date="2025-01-01",
     date_end="2025-03-31",
@@ -77,10 +77,10 @@ if acts:
 The repository includes runnable scripts with examples of use of the library:
 
 ```bash
-python scripts/run_doue.py
+python scripts/run_eurlex.py
 ```
 
-And also a Jupyter Notebook: `scripts/run_doue.ipynb`.
+And also a Jupyter Notebook: `scripts/run_eurlex.ipynb`.
 
 ## License
 

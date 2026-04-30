@@ -3,6 +3,6 @@ __author__ = "Diego González Suárez"
 __email__ = "gonzalezsdiego@uniovi.es"
 __license__ = "MIT"
 
-from . import doue
+from . import eurlex
 
-__all__ = ["doue"]
+__all__ = ["eurlex"]

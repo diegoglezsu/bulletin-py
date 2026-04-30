@@ -1,4 +1,4 @@
-"""DOUE (Official Journal of the European Union) subpackage."""
+"""EUR-Lex (Official Journal of the European Union) subpackage."""
 
 from . import api
 from .exceptions import BulletinError, EndpointError, QueryError

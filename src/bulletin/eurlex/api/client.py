@@ -1,22 +1,22 @@
 """
-High-level client for querying EU Official Journal (DOUE) acts.
+High-level client for querying EU Official Journal (EUR-Lex) acts.
 """
 from typing import Optional
-from ..repository._connector import DoueConnector
+from ..repository._connector import EurlexConnector
 from ..constants import DEFAULT_LANGUAGE, SPARQL_ENDPOINT
 from ..converters import acts_to_csv, parse_acts_results, parse_category_types_results, parse_institution_types_results
-from .models import DoueOfficialAct, CategoryType, InstitutionType
+from .models import EurlexOfficialAct, CategoryType, InstitutionType
 
 
-class DoueBulletinClient:
+class EurlexBulletinClient:
     """Client to query EU Official Journal acts."""
 
     def __init__(self, endpoint: str = SPARQL_ENDPOINT, timeout: int = 300):
-        self._connector = DoueConnector(endpoint=endpoint, timeout=timeout)
+        self._connector = EurlexConnector(endpoint=endpoint, timeout=timeout)
 
     def get_acts(
         self, date: str, language: str = DEFAULT_LANGUAGE, date_end: Optional[str] = None, title_contains: Optional[str] = None, category_type: Optional[str] = None, institution_type: Optional[str] = None
-    ) -> list[DoueOfficialAct]:
+    ) -> list[EurlexOfficialAct]:
         """Fetch Official Journal acts for a given publication date.
 
         Args:
@@ -27,7 +27,7 @@ class DoueBulletinClient:
             institution_type: Filter by institution type code (e.g. "CONSIL" for Council of the European Union, "COM" for Commission...). More types available at <http://publications.europa.eu/resource/authority/corporate-body>. Optional.
             language: ISO Language code (default: "ENG"). Supported values are defined in `LANGUAGE_CODE_MAP`. Examples: "ENG", "FRA", "DEU", "SPA"...
         Returns:
-            A list of DoueOfficialAct objects.
+            A list of EurlexOfficialAct objects.
             
         """
         query = self._connector.build_acts_query(date, language=language, date_end=date_end, title_contains=title_contains, category_type=category_type, institution_type=institution_type)

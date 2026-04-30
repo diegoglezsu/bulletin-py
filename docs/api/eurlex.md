@@ -1,6 +1,6 @@
-# bulletin.doue
+# bulletin.eurlex
 
-DOUE support is split into two layers:
+EUR-Lex support is split into two layers:
 
 - API layer: high-level client and typed parsing models.
 - Repository layer: connector for query construction and endpoint communication.
@@ -8,13 +8,13 @@ DOUE support is split into two layers:
 ## Basic Imports
 
 ```python
-from bulletin.doue.api.client import DoueBulletinClient
-from bulletin.doue.api.models import DoueOfficialAct
+from bulletin.eurlex.api.client import EurlexBulletinClient
+from bulletin.eurlex.api.models import EurlexOfficialAct
 ```
 
 ## Client
 
-::: bulletin.doue.api.client.DoueBulletinClient
+::: bulletin.eurlex.api.client.EurlexBulletinClient
     options:
       heading_level: 3
       show_root_heading: true
@@ -22,19 +22,19 @@ from bulletin.doue.api.models import DoueOfficialAct
 
 ## Models
 
-::: bulletin.doue.api.models.DoueOfficialAct
+::: bulletin.eurlex.api.models.EurlexOfficialAct
     options:
       heading_level: 3
       show_root_heading: true
       show_root_toc_entry: true
 
-::: bulletin.doue.api.models.CategoryType
+::: bulletin.eurlex.api.models.CategoryType
     options:
       heading_level: 3
       show_root_heading: true
       show_root_toc_entry: true
 
-::: bulletin.doue.api.models.InstitutionType
+::: bulletin.eurlex.api.models.InstitutionType
     options:
       heading_level: 3
       show_root_heading: true
@@ -42,7 +42,7 @@ from bulletin.doue.api.models import DoueOfficialAct
 
 ## Constants
 
-::: bulletin.doue.constants.LANGUAGE_CODE_MAP
+::: bulletin.eurlex.constants.LANGUAGE_CODE_MAP
     options:
       heading_level: 3
       show_root_heading: true

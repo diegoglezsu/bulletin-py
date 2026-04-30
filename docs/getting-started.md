@@ -3,7 +3,7 @@
 ## Requirements 🐍
 
 - Python 3.7+
-- Internet access for live DOUE queries
+- Internet access for live EUR-Lex queries
 
 ## Installation
 
@@ -22,9 +22,9 @@ pip install -e .[dev]
 ## First Query 🚀
 
 ```python
-from bulletin.doue.api.client import DoueBulletinClient
+from bulletin.eurlex.api.client import EurlexBulletinClient
 
-client = DoueBulletinClient()
+client = EurlexBulletinClient()
 acts = client.get_acts( 
     date="2025-01-01",
     date_end="2025-03-31",
@@ -44,7 +44,7 @@ if acts:
 The [repository](https://github.com/diegoglezsu/bulletin-fetcher/tree/main/scripts) includes an executable helper script:
 
 ```bash
-python scripts/run_doue.py
+python scripts/run_eurlex.py
 ```
 
-And also a Jupyter Notebook: `scripts/run_doue.ipynb`.
+And also a Jupyter Notebook: `scripts/run_eurlex.ipynb`.

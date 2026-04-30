@@ -1,52 +1,52 @@
-"""Unit tests for DoueBulletinClient."""
+"""Unit tests for EurlexBulletinClient."""
 
 from datetime import date
 from unittest.mock import patch
 
 import pytest
 
-from bulletin.doue.api.client import DoueBulletinClient
-from bulletin.doue.constants import SPARQL_ENDPOINT
-from bulletin.doue.api.models import DoueOfficialAct
+from bulletin.eurlex.api.client import EurlexBulletinClient
+from bulletin.eurlex.constants import SPARQL_ENDPOINT
+from bulletin.eurlex.api.models import EurlexOfficialAct
 
 
 @pytest.fixture
 def mock_connector():
-    """Fixture providing a mocked DoueConnector."""
-    with patch("bulletin.doue.api.client.DoueConnector") as mock:
+    """Fixture providing a mocked EurlexConnector."""
+    with patch("bulletin.eurlex.api.client.EurlexConnector") as mock:
         yield mock
 
 
 @pytest.fixture
 def client(mock_connector):
-    """Fixture providing a DoueBulletinClient with mocked connector."""
-    return DoueBulletinClient()
+    """Fixture providing a EurlexBulletinClient with mocked connector."""
+    return EurlexBulletinClient()
 
 
 class TestInit:
-    """Tests for DoueBulletinClient initialization."""
+    """Tests for EurlexBulletinClient initialization."""
 
     def test_with_defaults(self, mock_connector):
         """Test client initialization with default parameters."""
-        DoueBulletinClient()
+        EurlexBulletinClient()
         mock_connector.assert_called_once_with(endpoint=SPARQL_ENDPOINT, timeout=300)
 
     def test_with_custom_endpoint(self, mock_connector):
         """Test client initialization with custom endpoint."""
         custom_endpoint = "https://custom.endpoint/sparql"
-        DoueBulletinClient(endpoint=custom_endpoint)
+        EurlexBulletinClient(endpoint=custom_endpoint)
         mock_connector.assert_called_once_with(endpoint=custom_endpoint, timeout=300)
 
     def test_with_custom_timeout(self, mock_connector):
         """Test client initialization with custom timeout."""
-        DoueBulletinClient(timeout=60)
+        EurlexBulletinClient(timeout=60)
         mock_connector.assert_called_once_with(endpoint=SPARQL_ENDPOINT, timeout=60)
 
     def test_with_all_custom_params(self, mock_connector):
         """Test client initialization with all custom parameters."""
         custom_endpoint = "https://custom.endpoint/sparql"
         custom_timeout = 45
-        DoueBulletinClient(endpoint=custom_endpoint, timeout=custom_timeout)
+        EurlexBulletinClient(endpoint=custom_endpoint, timeout=custom_timeout)
         mock_connector.assert_called_once_with(
             endpoint=custom_endpoint, timeout=custom_timeout
         )
@@ -65,9 +65,9 @@ class TestGetActs:
         mock_instance.build_acts_query.return_value = "SPARQL_QUERY"
         mock_instance.execute_query.return_value = mock_response
 
-        with patch("bulletin.doue.api.client.parse_acts_results") as mock_parse:
+        with patch("bulletin.eurlex.api.client.parse_acts_results") as mock_parse:
             mock_parse.return_value = [
-                DoueOfficialAct(
+                EurlexOfficialAct(
                     celex_uri="https://example.com/act1",
                     act_number=None,
                     title="Act 1",
@@ -99,7 +99,7 @@ class TestGetActs:
         mock_instance.build_acts_query.return_value = "SPARQL_QUERY"
         mock_instance.execute_query.return_value = {"results": {"bindings": []}}
 
-        with patch("bulletin.doue.api.client.parse_acts_results") as mock_parse:
+        with patch("bulletin.eurlex.api.client.parse_acts_results") as mock_parse:
             mock_parse.return_value = []
             client.get_acts(test_date, language=custom_language)
 
@@ -116,7 +116,7 @@ class TestGetActs:
         mock_instance.execute_query.return_value = mock_response
 
         expected_acts = [
-            DoueOfficialAct(
+            EurlexOfficialAct(
                 celex_uri="https://example.com/act1",
                 act_number=None,
                 title="Act 1",
@@ -130,7 +130,7 @@ class TestGetActs:
                 institution_uri=None,
                 institution_label=None,
             ),
-            DoueOfficialAct(
+            EurlexOfficialAct(
                 celex_uri="https://example.com/act2",
                 act_number=None,
                 title="Act 2",
@@ -146,7 +146,7 @@ class TestGetActs:
             ),
         ]
 
-        with patch("bulletin.doue.api.client.parse_acts_results") as mock_parse:
+        with patch("bulletin.eurlex.api.client.parse_acts_results") as mock_parse:
             mock_parse.return_value = expected_acts
             result = client.get_acts(test_date)
 
@@ -160,7 +160,7 @@ class TestGetActs:
         mock_instance.build_acts_query.return_value = "SPARQL_QUERY"
         mock_instance.execute_query.return_value = {"results": {"bindings": []}}
 
-        with patch("bulletin.doue.api.client.parse_acts_results") as mock_parse:
+        with patch("bulletin.eurlex.api.client.parse_acts_results") as mock_parse:
             mock_parse.return_value = []
             result = client.get_acts(test_date)
 
@@ -174,7 +174,7 @@ class TestGetActs:
         mock_instance.build_acts_query.return_value = "SPARQL_QUERY"
         mock_instance.execute_query.return_value = {"results": {"bindings": []}}
 
-        with patch("bulletin.doue.api.client.parse_acts_results") as mock_parse:
+        with patch("bulletin.eurlex.api.client.parse_acts_results") as mock_parse:
             mock_parse.return_value = []
             client.get_acts(test_date, date_end=test_date_end)
 
@@ -190,7 +190,7 @@ class TestGetActs:
         mock_instance.build_acts_query.return_value = "SPARQL_QUERY"
         mock_instance.execute_query.return_value = {"results": {"bindings": []}}
 
-        with patch("bulletin.doue.api.client.parse_acts_results") as mock_parse:
+        with patch("bulletin.eurlex.api.client.parse_acts_results") as mock_parse:
             mock_parse.return_value = []
             client.get_acts(test_date, title_contains=title_filter)
 
@@ -207,7 +207,7 @@ class TestGetActs:
         mock_instance.build_acts_query.return_value = "SPARQL_QUERY"
         mock_instance.execute_query.return_value = {"results": {"bindings": []}}
 
-        with patch("bulletin.doue.api.client.parse_acts_results") as mock_parse:
+        with patch("bulletin.eurlex.api.client.parse_acts_results") as mock_parse:
             mock_parse.return_value = []
             client.get_acts(test_date, date_end=test_date_end, title_contains=title_filter)
 
@@ -223,7 +223,7 @@ class TestGetActs:
         mock_instance.build_acts_query.return_value = "SPARQL_QUERY"
         mock_instance.execute_query.return_value = {"results": {"bindings": []}}
 
-        with patch("bulletin.doue.api.client.parse_acts_results") as mock_parse:
+        with patch("bulletin.eurlex.api.client.parse_acts_results") as mock_parse:
             mock_parse.return_value = []
             client.get_acts(test_date, category_type=category_type)
 
@@ -239,7 +239,7 @@ class TestGetActsCsv:
         """Test get_acts_csv returns CSV text."""
         test_date = "2025-03-27"
         acts = [
-            DoueOfficialAct(
+            EurlexOfficialAct(
                 celex_uri="https://example.com/act1",
                 act_number="2025/1",
                 title="Act 1",
@@ -268,7 +268,7 @@ class TestGetActsCsv:
         test_date_end = "2025-03-31"
         title_filter = "regulation"
         acts = [
-            DoueOfficialAct(
+            EurlexOfficialAct(
                 celex_uri="https://example.com/act1",
                 act_number="2025/1",
                 title="Regulation about X",

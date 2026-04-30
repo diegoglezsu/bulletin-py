@@ -1,5 +1,5 @@
 """
-Custom exceptions for the DOUE subpackage.
+Custom exceptions for the EUR-Lex subpackage.
 """
 from typing import Optional
 

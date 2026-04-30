@@ -3,13 +3,13 @@ import csv
 import io
 from typing import Any
 
-from .api.models import DoueOfficialAct, CategoryType, InstitutionType
+from .api.models import EurlexOfficialAct, CategoryType, InstitutionType
 
 INVALID_SPARQL_RESPONSE_ERROR = "Invalid SPARQL response: {}"
 
 
-def parse_acts_results(results: Mapping[str, Any]) -> list[DoueOfficialAct]:
-    """Parse SPARQL results into a list of DoueOfficialAct objects."""
+def parse_acts_results(results: Mapping[str, Any]) -> list[EurlexOfficialAct]:
+    """Parse SPARQL results into a list of EurlexOfficialAct objects."""
     try:
         bindings = results["results"]["bindings"]
     except KeyError as exc:
@@ -18,16 +18,16 @@ def parse_acts_results(results: Mapping[str, Any]) -> list[DoueOfficialAct]:
     if not isinstance(bindings, list):
         raise TypeError(INVALID_SPARQL_RESPONSE_ERROR.format("'bindings' must be a list"))
 
-    acts: list[DoueOfficialAct] = []
+    acts: list[EurlexOfficialAct] = []
     for binding in bindings:
         if not isinstance(binding, Mapping):
             raise TypeError(INVALID_SPARQL_RESPONSE_ERROR.format("each Act binding must be a mapping"))
-        acts.append(DoueOfficialAct._from_binding(binding))
+        acts.append(EurlexOfficialAct._from_binding(binding))
 
     return acts
 
 
-def acts_to_csv(acts: list[DoueOfficialAct]) -> str:
+def acts_to_csv(acts: list[EurlexOfficialAct]) -> str:
     """Serialize a list of acts to CSV format."""
     fieldnames = [
         "celex_uri",

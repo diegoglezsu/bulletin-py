@@ -12,7 +12,7 @@ from ..constants import SPARQL_ENDPOINT, LANGUAGE_CODE_MAP, DEFAULT_LANGUAGE, CE
 from ..exceptions import EndpointError, QueryError
 
 
-class DoueConnector:
+class EurlexConnector:
     """Connector class for the EUR-Lex / Cellar SPARQL endpoint."""
 
     def __init__(self, endpoint: str = SPARQL_ENDPOINT, timeout: int = 300):
@@ -276,4 +276,4 @@ def _parse_date(value: str) -> date:
 
 
 def _escape_sparql_literal(value: str) -> str:
-    return value.replace("\\", "\\\\").replace('"', "\\\"")
+    return value.replace("\\", "\\\\").replace('"', '\\"')
