@@ -4,26 +4,26 @@ Welcome to the `bulletin-fetcher` codebase. This file contains context, architec
 
 ## 1. Project Overview
 
-`bulletin-fetcher` is a Python library designed to search and manage official bulletins, primarily focusing on the **Official Journal of the European Union (DOUE)** via the EUR-Lex / Cellar SPARQL endpoint.
+`bulletin-fetcher` is a Python library designed to search and manage official bulletins, primarily focusing on the **Official Journal of the European Union** via the EUR-Lex / Cellar SPARQL endpoint.
 
 ## 2. Architecture & Subpackages
 
-The codebase follows a modular design, split by bulletin source. Currently, the main subpackage is `src/bulletin/doue/`.
+The codebase follows a modular design, split by bulletin source. Currently, the main subpackage is `src/bulletin/eurlex/`.
 
-### `doue` Subpackage Structure
+### `eurlex` Subpackage Structure
 
-- **`api/client.py`**: Contains `DoueBulletinClient`. This is the **public API** entrypoint for users. It orchestrates the connector and parsing layer.
-- **`api/models.py`**: Contains `DoueOfficialAct` and `parse_results(...)` to map SPARQL JSON bindings into typed models.
-- **`repository/_connector.py`**: Contains `DoueConnector`. This is the connector/data-access layer responsible for building SPARQL queries and executing HTTP requests.
+- **`api/client.py`**: Contains `EurlexBulletinClient`. This is the **public API** entrypoint for users. It orchestrates the connector and parsing layer.
+- **`api/models.py`**: Contains `EurlexOfficialAct` and `parse_results(...)` to map SPARQL JSON bindings into typed models.
+- **`repository/_connector.py`**: Contains `EurlexConnector`. This is the connector/data-access layer responsible for building SPARQL queries and executing HTTP requests.
 - **`constants.py`**: Centralizes endpoint and language config (`SPARQL_ENDPOINT`, `LANGUAGE_CODE_MAP`, `SUPPORTED_LANGUAGE_CODES`, `DEFAULT_LANGUAGE`).
 - **`exceptions.py`**: Defines custom errors (`BulletinError`, `QueryError`, `EndpointError`).
-- **`__init__.py`**: Controls exports for `bulletin.doue` via `__all__`.
+- **`__init__.py`**: Controls exports for `bulletin.eurlex` via `__all__`.
 
 ### Current Layering
 
-- **Public API layer**: `bulletin.doue.api`
-- **Repository layer**: `bulletin.doue.repository`
-- **Root exports**: `bulletin.doue` currently exposes `api` and exception classes.
+- **Public API layer**: `bulletin.eurlex.api`
+- **Repository layer**: `bulletin.eurlex.repository`
+- **Root exports**: `bulletin.eurlex` currently exposes `api` and exception classes.
 
 ## 3. Technology Stack & Guidelines
 
@@ -48,7 +48,7 @@ The codebase follows a modular design, split by bulletin source. Currently, the 
 ## 5. Typical Workflows
 
 - **Running tests**: `pytest tests/ -v -s`
-- **Running unit-only tests**: `pytest tests/doue -m "not integration"`
+- **Running unit-only tests**: `pytest tests/eurlex -m "not integration"`
 - **Installing for dev**: `pip install -e .[dev]`
 - **Building package**: `python -m build`
 - **Building docs**: `mkdocs build`
@@ -56,4 +56,4 @@ The codebase follows a modular design, split by bulletin source. Currently, the 
 ## 6. Pending Work (Roadmap)
 
 - Keep this file synchronized with code structure changes (especially module paths and exported symbols).
-- If public API exports change, update both docs (`docs/api/doue.md`) and tests import paths together.
+- If public API exports change, update both docs (`docs/api/eurlex.md`) and tests import paths together.

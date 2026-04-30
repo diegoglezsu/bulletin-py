@@ -4,14 +4,9 @@ This page describes the local workflow for contributing to bulletin-fetcher.
 
 ## Local Setup
 
-1. Create a virtual environment.
-2. Activate it.
-3. Install development and documentation dependencies.
+Install development and documentation dependencies.
 
 ```bash
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
 pip install -e .[dev,docs]
 ```
 

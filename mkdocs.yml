@@ -39,7 +39,7 @@ nav:
   - getting-started.md
   - development.md
   - API Reference:
-      - bulletin.doue: api/doue.md
+      - bulletin.eurlex: api/eurlex.md
 
 markdown_extensions:
   - admonition

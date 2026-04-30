@@ -29,7 +29,7 @@ def _optional_value(binding: Mapping[str, Any], key: str) -> str | None:
 
 
 @dataclass
-class DoueOfficialAct:
+class EurlexOfficialAct:
     celex_uri: str
     act_number: str | None
     title: str
@@ -61,8 +61,8 @@ class DoueOfficialAct:
         }
 
     @classmethod
-    def _from_binding(cls, binding: Mapping[str, Any]) -> DoueOfficialAct:
-        """Build a DoueOfficialAct from one SPARQL binding item."""
+    def _from_binding(cls, binding: Mapping[str, Any]) -> EurlexOfficialAct:
+        """Build an EurlexOfficialAct from one SPARQL binding item."""
         return cls(
             celex_uri=_required_value(binding, "act"),
             act_number=_optional_value(binding, "actNumber"),
@@ -99,6 +99,7 @@ class CategoryType:
             code=_required_value(binding, "code"),
             label=_required_value(binding, "label"),
         )
+
 @dataclass
 class InstitutionType:
     """Represents an institution type from the authority list."""

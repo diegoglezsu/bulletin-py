@@ -12,7 +12,7 @@ license-files = ["LICENSE"]
 authors = [
     {name = "Diego González Suárez", email = "gonzalezsdiego@uniovi.es"}
 ]
-keywords = ["bulletin", "official", "legal", "european union", "eu", "sparql"]
+keywords = ["bulletin", "official", "legal", "european union", "eu", "sparql", "eurlex", "cellar", "data analysis", "policy research"]
 classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",

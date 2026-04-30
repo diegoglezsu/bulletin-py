@@ -1,12 +1,12 @@
-"""Small script to query DOUE acts using bulletin-fetcher."""
+"""Small script to query EUR-Lex acts using bulletin-fetcher."""
 
 import sys
 
-from bulletin.doue.api.client import DoueBulletinClient
+from bulletin.eurlex.api.client import EurlexBulletinClient
 
 def main() -> int:
 
-    client = DoueBulletinClient()
+    client = EurlexBulletinClient()
 
     date = "2025-01-01"
     date_end = "2025-03-31"

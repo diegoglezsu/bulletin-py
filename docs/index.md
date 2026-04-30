@@ -1,7 +1,7 @@
 # bulletin-fetcher
 
 bulletin-fetcher is a Python library for searching and managing official bulletins,
-currently focused on the Official Journal of the European Union (DOUE).
+currently focused on the Official Journal of the European Union via EUR-Lex.
 
 <div style="text-align: center; margin: 20px 0;">
     <img src="assets/logo.jpg" alt="Bulletin Fetcher Logo" width="200" />
