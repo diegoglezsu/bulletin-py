@@ -39,12 +39,6 @@ if acts:
     print(first.title)
 ```
 
-### Run the Example Script
+### Run Example Scripts
 
-The [repository](https://github.com/diegoglezsu/bulletin-fetcher/tree/main/scripts) includes an executable helper script:
-
-```bash
-python scripts/run_eurlex.py
-```
-
-And also a Jupyter Notebook: `scripts/run_eurlex.ipynb`.
+The repository includes runnable scripts and notebooks with examples and use cases of the library. These scripts can be found in the [`scripts`](https://github.com/diegoglezsu/bulletin-fetcher/tree/main/scripts) directory.

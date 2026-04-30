@@ -74,13 +74,7 @@ if acts:
 
 ### Example scripts
 
-The repository includes runnable scripts with examples of use of the library:
-
-```bash
-python scripts/run_eurlex.py
-```
-
-And also a Jupyter Notebook: `scripts/run_eurlex.ipynb`.
+The repository includes runnable scripts and notebooks with examples and use cases of the library. These scripts can be found in the `scripts/` directory.
 
 ## License
 
