@@ -332,15 +332,14 @@ class TestGetActsJson:
         ]
 
         with patch.object(client, "get_acts", return_value=acts) as mock_get:
-            json_text = client.get_acts_json(test_date)
+            json_list = client.get_acts_json(test_date)
 
-        data = json.loads(json_text)
 
-        assert len(data) == 1
-        assert data[0]["celex_uri"] == "https://example.com/act1"
-        assert data[0]["act_number"] == "2025/1"
-        assert data[0]["title"] == "Act 1"
-        assert data[0]["date"] == "2025-03-27"
+        assert len(json_list) == 1
+        assert json_list[0]["celex_uri"] == "https://example.com/act1"
+        assert json_list[0]["act_number"] == "2025/1"
+        assert json_list[0]["title"] == "Act 1"
+        assert json_list[0]["date"] == "2025-03-27"
         mock_get.assert_called_once_with(
             test_date,
             language="ENG",
@@ -354,9 +353,9 @@ class TestGetActsJson:
         test_date = "2025-03-27"
 
         with patch.object(client, "get_acts", return_value=[]) as mock_get:
-            json_text = client.get_acts_json(test_date)
+            json_list = client.get_acts_json(test_date)
 
-        assert json_text == "[]"
+        assert json_list == []
         mock_get.assert_called_once_with(
             test_date,
             language="ENG",
@@ -389,16 +388,14 @@ class TestGetActsJson:
         ]
 
         with patch.object(client, "get_acts", return_value=acts) as mock_get:
-            json_text = client.get_acts_json(
+            json_list = client.get_acts_json(
                 test_date, date_end=test_date_end, title_contains=title_filter
             )
 
-        data = json.loads(json_text)
-
-        assert len(data) == 1
-        assert data[0]["celex_uri"] == "https://example.com/act1"
-        assert data[0]["act_number"] == "2025/1"
-        assert data[0]["title"] == "Regulation about X"
+        assert len(json_list) == 1
+        assert json_list[0]["celex_uri"] == "https://example.com/act1"
+        assert json_list[0]["act_number"] == "2025/1"
+        assert json_list[0]["title"] == "Regulation about X"
 
         mock_get.assert_called_once_with(
             test_date, language="ENG", date_end=test_date_end, title_contains=title_filter, category_type=None, institution_type=None

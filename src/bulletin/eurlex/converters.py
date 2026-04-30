@@ -51,9 +51,9 @@ def acts_to_csv(acts: list[EurlexOfficialAct]) -> str:
         writer.writerow(act._to_dict())
     return buffer.getvalue()
 
-def acts_to_json(acts: list[EurlexOfficialAct]) -> str:
+def acts_to_json(acts: list[EurlexOfficialAct]) -> list[dict]:
     """Serialize a list of acts to JSON format."""
-    return json.dumps([act._to_dict() for act in acts])
+    return [act._to_dict() for act in acts]
 
 
 def parse_category_types_results(results: Mapping[str, Any]) -> list[CategoryType]:

@@ -173,19 +173,18 @@ class TestActsToJson:
             )
         ]
 
-        json_text = acts_to_json(acts)
-        data = json.loads(json_text)
+        json_list = acts_to_json(acts)
 
-        assert isinstance(data, list)
-        assert len(data) == 1
-        assert data[0]["celex_uri"] == "https://example.com/act1"
-        assert data[0]["act_number"] == "2025/1"
-        assert data[0]["title"] == "Act 1"
-        assert data[0]["date"] == "2025-03-27"
-        assert data[0]["section_code"] is None
+        assert isinstance(json_list, list)
+        assert len(json_list) == 1
+        assert json_list[0]["celex_uri"] == "https://example.com/act1"
+        assert json_list[0]["act_number"] == "2025/1"
+        assert json_list[0]["title"] == "Act 1"
+        assert json_list[0]["date"] == "2025-03-27"
+        assert json_list[0]["section_code"] is None
 
     def test_serializes_empty_list(self) -> None:
-        assert acts_to_json([]) == "[]"
+        assert acts_to_json([]) == []
 
 
 class TestParseCategoryTypesResults:
