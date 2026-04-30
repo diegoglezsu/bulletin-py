@@ -1,10 +1,11 @@
 """Unit tests for converters utilities."""
 
 from datetime import date
+import json
 
 import pytest
 
-from bulletin.eurlex.converters import acts_to_csv, parse_acts_results, parse_category_types_results, parse_institution_types_results
+from bulletin.eurlex.converters import acts_to_csv, acts_to_json, parse_acts_results, parse_category_types_results, parse_institution_types_results
 from bulletin.eurlex.api.models import EurlexOfficialAct, CategoryType, InstitutionType
 
 
@@ -150,6 +151,40 @@ class TestActsToCsv:
         assert rows[1].startswith(
             "\"https://example.com/act1\",\"2025/1\",\"Act 1\",\"2025-03-27\""
         )
+
+class TestActsToJson:
+    """Tests for acts_to_json converter."""
+
+    def test_serializes_rows(self) -> None:
+        acts = [
+            EurlexOfficialAct(
+                celex_uri="https://example.com/act1",
+                act_number="2025/1",
+                title="Act 1",
+                date=date(2025, 3, 27),
+                section_code=None,
+                subsection_code=None,
+                category_code=None,
+                category_uri=None,
+                category_label=None,
+                institution_code=None,
+                institution_uri=None,
+                institution_label=None,
+            )
+        ]
+
+        json_list = acts_to_json(acts)
+
+        assert isinstance(json_list, list)
+        assert len(json_list) == 1
+        assert json_list[0]["celex_uri"] == "https://example.com/act1"
+        assert json_list[0]["act_number"] == "2025/1"
+        assert json_list[0]["title"] == "Act 1"
+        assert json_list[0]["date"] == "2025-03-27"
+        assert json_list[0]["section_code"] is None
+
+    def test_serializes_empty_list(self) -> None:
+        assert acts_to_json([]) == []
 
 
 class TestParseCategoryTypesResults:

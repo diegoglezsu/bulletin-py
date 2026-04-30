@@ -1,6 +1,7 @@
 """Unit tests for EurlexBulletinClient."""
 
 from datetime import date
+import json
 from unittest.mock import patch
 
 import pytest
@@ -306,6 +307,111 @@ class TestGetActsCsv:
             test_date, language="ENG", date_end=None, title_contains=None, category_type="RES", institution_type=None
         )
 
+
+class TestGetActsJson:
+    """Tests for get_acts_json method."""
+
+    def test_returns_json(self, client) -> None:
+        """Test get_acts_json returns JSON text."""
+        test_date = "2025-03-27"
+        acts = [
+            EurlexOfficialAct(
+                celex_uri="https://example.com/act1",
+                act_number="2025/1",
+                title="Act 1",
+                date=date(2025, 3, 27),
+                section_code=None,
+                subsection_code=None,
+                category_code=None,
+                category_uri=None,
+                category_label=None,
+                institution_code=None,
+                institution_uri=None,
+                institution_label=None,
+            )
+        ]
+
+        with patch.object(client, "get_acts", return_value=acts) as mock_get:
+            json_list = client.get_acts_json(test_date)
+
+
+        assert len(json_list) == 1
+        assert json_list[0]["celex_uri"] == "https://example.com/act1"
+        assert json_list[0]["act_number"] == "2025/1"
+        assert json_list[0]["title"] == "Act 1"
+        assert json_list[0]["date"] == "2025-03-27"
+        mock_get.assert_called_once_with(
+            test_date,
+            language="ENG",
+            date_end=None,
+            title_contains=None,
+            category_type=None,
+            institution_type=None,
+        )
+
+    def test_returns_empty_json(self, client) -> None:
+        test_date = "2025-03-27"
+
+        with patch.object(client, "get_acts", return_value=[]) as mock_get:
+            json_list = client.get_acts_json(test_date)
+
+        assert json_list == []
+        mock_get.assert_called_once_with(
+            test_date,
+            language="ENG",
+            date_end=None,
+            title_contains=None,
+            category_type=None,
+            institution_type=None,
+        )
+
+    def test_with_date_end_and_title_contains(self, client) -> None:
+        """Test get_acts_json with date_end and title_contains parameters."""
+        test_date = "2025-03-27"
+        test_date_end = "2025-03-31"
+        title_filter = "regulation"
+        acts = [
+            EurlexOfficialAct(
+                celex_uri="https://example.com/act1",
+                act_number="2025/1",
+                title="Regulation about X",
+                date=date(2025, 3, 27),
+                section_code=None,
+                subsection_code=None,
+                category_code=None,
+                category_uri=None,
+                category_label=None,
+                institution_code=None,
+                institution_uri=None,
+                institution_label=None,
+            )
+        ]
+
+        with patch.object(client, "get_acts", return_value=acts) as mock_get:
+            json_list = client.get_acts_json(
+                test_date, date_end=test_date_end, title_contains=title_filter
+            )
+
+        assert len(json_list) == 1
+        assert json_list[0]["celex_uri"] == "https://example.com/act1"
+        assert json_list[0]["act_number"] == "2025/1"
+        assert json_list[0]["title"] == "Regulation about X"
+
+        mock_get.assert_called_once_with(
+            test_date, language="ENG", date_end=test_date_end, title_contains=title_filter, category_type=None, institution_type=None
+        )
+
+    def test_with_category_type(self, client):
+        """Test get_acts_json with category_type parameter."""
+        test_date = "2025-03-27"
+        category_type = "RES"
+        
+        with patch.object(client, "get_acts", return_value=[]) as mock_get:
+            client.get_acts_json(test_date, category_type=category_type)
+
+        mock_get.assert_called_once_with(
+            test_date, language="ENG", date_end=None, title_contains=None, category_type="RES", institution_type=None
+        )
 
 class TestGetCategoryTypes:
     """Tests for get_category_types method."""
