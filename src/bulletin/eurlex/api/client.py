@@ -4,7 +4,7 @@ High-level client for querying EU Official Journal (EUR-Lex) acts.
 from typing import Optional
 from ..repository._connector import EurlexConnector
 from ..constants import DEFAULT_LANGUAGE, SPARQL_ENDPOINT
-from ..converters import acts_to_csv, parse_acts_results, parse_category_types_results, parse_institution_types_results
+from ..converters import acts_to_csv, acts_to_json, parse_acts_results, parse_category_types_results, parse_institution_types_results
 from .models import EurlexOfficialAct, CategoryType, InstitutionType
 
 
@@ -51,6 +51,24 @@ class EurlexBulletinClient:
         """
         acts = self.get_acts(date, language=language, date_end=date_end, title_contains=title_contains, category_type=category_type, institution_type=institution_type)
         return acts_to_csv(acts)
+
+    def get_acts_json(self, date: str, date_end: Optional[str] = None, title_contains: Optional[str] = None, category_type: Optional[str] = None, institution_type: Optional[str] = None, language: str = DEFAULT_LANGUAGE) -> list[dict]:
+        """
+        Fetch Official Journal acts for a given date and return JSON output. Uses get_acts internally, so supports the same filters.
+
+        Args:
+            date: Publication date in ISO format (e.g. "2025-03-27").
+            date_end: End date in ISO format (e.g. "2025-03-27"). If provided, fetch acts published between `date` and `date_end` inclusive.
+            title_contains: Case-insensitive substring filter on title.
+            category_type: Filter by category type code (e.g. "RES" for Resolution, "ANNOUNC" for Announcement...). More types available at <http://publications.europa.eu/resource/authority/resource-type>. Optional.
+            institution_type: Filter by institution type code (e.g. "CONSIL" for Council of the European Union, "COM" for Commission...). More types available at <http://publications.europa.eu/resource/authority/corporate-body>. Optional.
+            language: ISO Language code (default: "ENG"). Supported values are defined in `LANGUAGE_CODE_MAP`. Examples: "ENG", "FRA", "DEU", "SPA"...
+        Returns:
+            A JSON string representing the acts.
+
+        """
+        acts = self.get_acts(date, language=language, date_end=date_end, title_contains=title_contains, category_type=category_type, institution_type=institution_type)
+        return acts_to_json(acts)    
 
     def get_category_types(self, language: str = DEFAULT_LANGUAGE) -> list[CategoryType]:
         """Fetch the list of possible category types from the authority list. This method may last a few minutes due to the size of the authority list.
