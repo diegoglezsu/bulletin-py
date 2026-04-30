@@ -8,14 +8,14 @@ def main() -> int:
 
     client = DoueBulletinClient()
 
-    date = "2026-01-01"
-    date_end = "2026-03-31"
-    #title_contains = "euronest"
-    language = "SPA"
-    category_type = "ANNOUNC"
+    date = "2025-01-01"
+    date_end = "2025-03-31"
+    title_contains = "artificial intelligence"
+    language = "ENG"
+    #category_type = "ANNOUNC"
 
     try:
-        acts = client.get_acts(date=date, language=language, date_end=date_end, title_contains=None, category_type=category_type, institution_type=None)
+        acts = client.get_acts(date=date, language=language, date_end=date_end, title_contains=title_contains, category_type=None, institution_type=None)
     except Exception as exc:
         print(f"Error while fetching acts: {exc}", file=sys.stderr)
         return 1
@@ -34,9 +34,13 @@ def main() -> int:
 
     print(f"Total acts: {len(acts)}")
     print("Done.")
-    #csv_output = client.get_acts_csv(date=date, date_end=date_end, language=language)  # Example of fetching CSV output
-    #print("CSV Output:")
-    #print(csv_output)
+
+    print("\n" + "=" * 60 + "\n")
+
+    # Get data in CSV
+    csv_output = client.get_acts_csv(date=date, date_end=date_end, title_contains=title_contains, language=language) 
+    print("CSV Output:")
+    print(csv_output)
 
     return 0
 

@@ -11,18 +11,38 @@
 
 ![Bulletin Fetcher Logo](https://raw.githubusercontent.com/diegoglezsu/bulletin-fetcher/main/docs/assets/logo.jpg)
 
-**bulletin-fetcher** is a Python library to query and fetch official bulletins. It makes easier to work with the Official Journal Data in python, providing a high-level API and data models. Current support:
+**bulletin-fetcher** is a Python library for programmatic access to legal acts published in official bulletins, with current support for the **Official Journal of the European Union (OJEU / DOUE)** through the EUR-Lex / Cellar SPARQL endpoint.
 
-- Official Journal of the European Union (DOUE) via EUR-Lex / Cellar SPARQL endpoint.
+The library provides a high-level Python API that allows developers, researchers and legal-domain experts to search EU legal acts without writing SPARQL queries directly.
 
-## Key Features
+## Why bulletin-fetcher?
 
-- Query official acts from Legal Institutions.
-- Works with Python objects instead of raw JSON and gets away from Web Services.
-- Easier for data manipulation and integration in notebooks through Python models.
-- Keep a clean architecture with a public API layer and a data connector layer.
+EU legal acts can be queried through public semantic web infrastructure, but using the underlying SPARQL endpoint requires knowledge of RDF vocabularies, query structure and EUR-Lex metadata conventions and ontologies.
 
-## Installation
+`bulletin-fetcher` abstracts this complexity behind a simple Python interface. Users can retrieve legal acts by publication date, date ranges, act type, publishing institution and textual content, while receiving Python objects or CSV outputs suitable for further analysis.
+
+## Main features
+
+- Search EU legal acts from the Official Journal of the European Union.
+- Filter acts by date or date range, act type, publishing institution, text contained in the act title, language.
+- Retrieve available act types and publishing institutions.
+- Export act search results to CSV.
+- Work with Python instead of raw SPARQL queries.
+- Integrate easily with notebooks, data pipelines and legal analytics workflows.
+
+## Use Cases
+
+bulletin-fetcher can be used for:
+
+- Legal analytics
+- Public policy research
+- Regulatory monitoring
+- Reproducible studies based on legal acts
+- Data collection pipelines
+
+## Quick Start
+
+### Installation
 
 Install from PyPI:
 
@@ -30,9 +50,7 @@ Install from PyPI:
 pip install bulletin-fetcher
 ```
 
-## Usage
-
-### Quick Example
+### Basic Usage Example
 
 Fetch acts for a publication date:
 
@@ -40,32 +58,29 @@ Fetch acts for a publication date:
 from bulletin.doue.api.client import DoueBulletinClient
 
 client = DoueBulletinClient()
-acts = client.get_acts(date="2025-03-31")
+acts = client.get_acts( 
+    date="2025-01-01",
+    date_end="2025-03-31",
+    title_contains="artificial intelligence",
+    language="ENG"
+)
 
 print(f"Total acts: {len(acts)}")
 if acts:
- first = acts[0]
- print(first.celex_uri)
- print(first.title)
+    first = acts[0]
+    print(first.celex_uri)
+    print(first.title)
 ```
 
-### Standalone Script
+### Example scripts
 
-The repository includes a runnable script:
+The repository includes runnable scripts with examples of use of the library:
 
 ```bash
 python scripts/run_doue.py
 ```
 
-## Contributing
-
-Contributions are welcome! Please follow the standard steps:
-
-1. Fork the project.
-2. Create a branch for your feature (`git checkout -b feature/AmazingFeature`).
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`).
-4. Push to the branch (`git push origin feature/AmazingFeature`).
-5. Open a Pull Request.
+And also a Jupyter Notebook: `scripts/run_doue.ipynb`.
 
 ## License
 
@@ -77,6 +92,15 @@ For any questions or suggestions, feel free to reach out to the author:
 
 - **Author**: Diego González Suárez
 - **Email**: <gonzalezsdiego@uniovi.es>
-- **GitHub**: [diegoglezsu](https://github.com/diegoglezsu)
+
+## Acknowledgements
+
+TODO: Add acknowledgements here.
+
+## Citation
+
+If you use `bulletin-fetcher` in academic work, please cite the project.
+
+A `CITATION.cff` file will be added in a future release.
 
 ---

@@ -7,14 +7,27 @@ currently focused on the Official Journal of the European Union (DOUE).
     <img src="assets/logo.jpg" alt="Bulletin Fetcher Logo" width="200" />
 </div>
 
-## Why This Project 🤔
+## Why bulletin-fetcher?
 
-- Query official acts from Legal Institutions.
-- Works with Python objects instead of raw JSON and gets away from Web Services.
-- Easier for data manipulation and integration and notebooks.
-- Keep a clean architecture with a public API layer and a data connector layer.
+EU legal acts can be queried through public semantic web infrastructure, but using the underlying SPARQL endpoint requires knowledge of RDF vocabularies, query structure and EUR-Lex metadata conventions and ontologies.
 
-## Current support 🚀
+`bulletin-fetcher` abstracts this complexity behind a simple Python interface. Users can retrieve legal acts by publication date, date ranges, act type, publishing institution and textual content, while receiving Python objects or CSV outputs suitable for further analysis.
 
-- DOUE queries by publication date.
-- DOUE CSV export of act lists.
+## Main features
+
+- Search EU legal acts from the Official Journal of the European Union.
+- Filter acts by date or date range, act type, publishing institution, text contained in the act title, language.
+- Retrieve available act types and publishing institutions.
+- Export act search results to CSV.
+- Work with Python instead of raw SPARQL queries.
+- Integrate easily with notebooks, data pipelines and legal analytics workflows.
+
+## Use Cases
+
+bulletin-fetcher can be used for:
+
+- Legal analytics
+- Public policy research
+- Regulatory monitoring
+- Reproducible studies based on legal acts
+- Data collection pipelines

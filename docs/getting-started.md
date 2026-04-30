@@ -25,11 +25,18 @@ pip install -e .[dev]
 from bulletin.doue.api.client import DoueBulletinClient
 
 client = DoueBulletinClient()
-acts = client.get_acts(date="2025-03-27")
+acts = client.get_acts( 
+    date="2025-01-01",
+    date_end="2025-03-31",
+    title_contains="artificial intelligence",
+    language="ENG"
+)
 
-for act in acts[:3]:
- print(act.celex_uri)
- print(act.title)
+print(f"Total acts: {len(acts)}")
+if acts:
+    first = acts[0]
+    print(first.celex_uri)
+    print(first.title)
 ```
 
 ### Run the Example Script
@@ -39,3 +46,5 @@ The [repository](https://github.com/diegoglezsu/bulletin-fetcher/tree/main/scrip
 ```bash
 python scripts/run_doue.py
 ```
+
+And also a Jupyter Notebook: `scripts/run_doue.ipynb`.
