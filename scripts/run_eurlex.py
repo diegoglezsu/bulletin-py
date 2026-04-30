@@ -42,11 +42,6 @@ def main() -> int:
     print("CSV Output:")
     print(csv_output)
 
-    # Get data in JSON
-    json_output = client.get_acts_json(date=date, date_end=date_end, title_contains=title_contains, language=language) 
-    print("JSON Output:")
-    print(json_output)
-
     return 0
 
 
