@@ -426,6 +426,26 @@ class TestGetActsOutputFormat:
             institution_type=None,
         )
 
+    def test_xml_format_returns_xml_text(
+        self, client, mock_connector, sample_act
+    ) -> None:
+        """Test get_acts returns xml string for xml output."""
+        test_date = "2025-03-27"
+        mock_instance = mock_connector.return_value
+        mock_instance.build_acts_query.return_value = "SPARQL_QUERY"
+        mock_instance.execute_query.return_value = {"results": {"bindings": []}}
+
+        with patch("bulletin.eurlex.api.client.parse_acts_results") as mock_parse:
+            mock_parse.return_value = [sample_act]
+            with patch(
+                "bulletin.eurlex.api.client.acts_to_xml",
+                return_value="<acts></acts>",
+            ) as mock_to_xml:
+                xml_result = client.get_acts(test_date, output_format="xml")
+
+        assert xml_result == "<acts></acts>"
+        mock_to_xml.assert_called_once_with([sample_act])
+
     def test_empty_results_with_json_format(self, client, mock_connector) -> None:
         """Test get_acts returns an empty list for empty JSON output."""
         test_date = "2025-03-27"
@@ -491,7 +511,7 @@ class TestGetActsOutputFormat:
     ) -> None:
         """Test invalid output formats fail before touching the connector."""
         with pytest.raises(ValueError, match="Unsupported acts output format"):
-            client.get_acts("2025-03-27", output_format="xml")
+            client.get_acts("2025-03-27", output_format="unknown")
 
         mock_instance = mock_connector.return_value
         mock_instance.build_acts_query.assert_not_called()

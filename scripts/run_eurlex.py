@@ -56,6 +56,17 @@ def main() -> int:
     print("CSV Output:")
     print(csv_output)
 
+    # get data in xml
+    xml_output = client.get_acts(
+        date=date,
+        date_end=date_end,
+        title_contains=title_contains,
+        language=language,
+        output_format="xml",
+    )
+    print("XML Output:")
+    print(xml_output)
+
     # Get data in JSON
     json_output = client.get_acts(
         date=date,

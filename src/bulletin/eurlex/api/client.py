@@ -10,6 +10,7 @@ if TYPE_CHECKING:
 from ..repository._connector import EurlexConnector
 from ..constants import (
     ACTS_OUTPUT_FORMAT_CSV,
+    ACTS_OUTPUT_FORMAT_XML,
     ACTS_OUTPUT_FORMAT_JSON,
     ACTS_OUTPUT_FORMAT_OBJECTS,
     ACTS_OUTPUT_FORMAT_PANDASDF,
@@ -21,6 +22,7 @@ from ..converters import (
     acts_to_csv,
     acts_to_dataframe,
     acts_to_json,
+    acts_to_xml,
     parse_acts_results,
     parse_category_types_results,
     parse_institution_types_results,
@@ -62,6 +64,8 @@ def _format_acts(acts: list[EurlexOfficialAct], output_format: str) -> _ActsOutp
         return acts_to_csv(acts)
     if output_format == ACTS_OUTPUT_FORMAT_PANDASDF:
         return acts_to_dataframe(acts)
+    if output_format == ACTS_OUTPUT_FORMAT_XML:
+        return acts_to_xml(acts)
     return acts
 
 
