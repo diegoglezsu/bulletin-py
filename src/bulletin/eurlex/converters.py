@@ -72,10 +72,25 @@ def acts_to_dataframe(acts: list[EurlexOfficialAct]) -> Any:
     except ImportError as exc:
         raise ImportError(
             "pandas is required to use output_format='df'. "
-            "Install pandas or install bulletin-fetcher with its pandas dependency."
+            "Install pandas or install bulletin-fetcher[pandas]."
         ) from exc
 
     return pandas.DataFrame(acts_to_json(acts))
+
+
+def acts_to_xml(acts: list[EurlexOfficialAct]) -> str:
+    """Serialize a list of acts to XML format."""
+    try:
+        dicttoxml = importlib.import_module("dicttoxml")
+    except ImportError as exc:
+        raise ImportError(
+            "dicttoxml is required to use output_format='xml'. "
+            "Install dicttoxml or install bulletin-fetcher[dicttoxml]."
+        ) from exc
+
+    acts_dicts = acts_to_json(acts)
+    xml_bytes = dicttoxml.dicttoxml(acts_dicts, custom_root="acts", attr_type=False)
+    return xml_bytes.decode("utf-8")
 
 
 def parse_category_types_results(results: Mapping[str, Any]) -> list[CategoryType]:

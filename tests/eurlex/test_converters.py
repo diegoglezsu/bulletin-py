@@ -10,6 +10,7 @@ from bulletin.eurlex.converters import (
     acts_to_csv,
     acts_to_dataframe,
     acts_to_json,
+    acts_to_xml,
     parse_acts_results,
     parse_category_types_results,
     parse_institution_types_results,
@@ -255,6 +256,76 @@ class TestActsToDataFrame:
 
         with pytest.raises(ImportError, match="pandas is required"):
             acts_to_dataframe([])
+
+
+class TestActsToXml:
+    """Tests for acts_to_xml converter."""
+
+    def test_serializes_rows(self, monkeypatch) -> None:
+        recorded_call = {}
+
+        def fake_dicttoxml(obj, custom_root, attr_type):
+            recorded_call["obj"] = obj
+            recorded_call["custom_root"] = custom_root
+            recorded_call["attr_type"] = attr_type
+            return b"<acts><test>success</test></acts>"
+
+        fake_dicttoxml_module = SimpleNamespace(dicttoxml=fake_dicttoxml)
+        monkeypatch.setitem(sys.modules, "dicttoxml", fake_dicttoxml_module)
+
+        acts = [
+            EurlexOfficialAct(
+                celex_uri="https://example.com/act1",
+                act_number="2025/1",
+                title="Act 1",
+                date=date(2025, 3, 27),
+                section_code=None,
+                subsection_code=None,
+                category_code=None,
+                category_uri=None,
+                category_label=None,
+                institution_code=None,
+                institution_uri=None,
+                institution_label=None,
+            )
+        ]
+
+        xml_result = acts_to_xml(acts)
+
+        assert xml_result == "<acts><test>success</test></acts>"
+        assert recorded_call == {
+            "obj": [
+                {
+                    "celex_uri": "https://example.com/act1",
+                    "act_number": "2025/1",
+                    "title": "Act 1",
+                    "date": "2025-03-27",
+                    "section_code": None,
+                    "subsection_code": None,
+                    "category_code": None,
+                    "category_uri": None,
+                    "category_label": None,
+                    "institution_code": None,
+                    "institution_uri": None,
+                    "institution_label": None,
+                }
+            ],
+            "custom_root": "acts",
+            "attr_type": False,
+        }
+
+    def test_raises_clear_error_when_dicttoxml_is_missing(self, monkeypatch) -> None:
+        def raise_import_error(name):
+            if name == "dicttoxml":
+                raise ImportError("dicttoxml unavailable")
+            return __import__(name)
+
+        monkeypatch.setattr(
+            "bulletin.eurlex.converters.importlib.import_module", raise_import_error
+        )
+
+        with pytest.raises(ImportError, match="dicttoxml is required"):
+            acts_to_xml([])
 
 
 class TestParseCategoryTypesResults:
