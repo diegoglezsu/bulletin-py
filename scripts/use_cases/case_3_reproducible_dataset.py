@@ -18,6 +18,7 @@ def main() -> int:
 
     DATE_START = "2020-01-01"
     DATE_END = "2025-12-01"
+    # We want to find all acts that mention "disease" in the title, in English language.
     TITLE_KEYWORD = "disease"
     LANGUAGE = "ENG"
     # Save file in the same directory as this script
