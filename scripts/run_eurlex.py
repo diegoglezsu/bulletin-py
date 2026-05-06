@@ -13,7 +13,9 @@ def main() -> int:
     date_end = "2025-03-31"
     title_contains = "artificial intelligence"
     language = "ENG"
-    # category_type = "ANNOUNC"
+    # Examples of filtering:
+    # - Pass category_type="ANNOUNC" to filter by category type (e.g., announcements)
+    # - Pass institution_type="COM" to filter by institution type (e.g., European Commission)
 
     try:
         acts = client.get_acts(

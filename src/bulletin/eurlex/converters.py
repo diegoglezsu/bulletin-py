@@ -7,6 +7,9 @@ from typing import Any
 from .api.models import EurlexOfficialAct, CategoryType, InstitutionType
 
 INVALID_SPARQL_RESPONSE_ERROR = "Invalid SPARQL response: {}"
+MISSING_DEPENDENCY_ERROR = "Missing dependency: {}. Install it or install bulletin-fetcher[{}]."
+MISSING_RESULTS_BINDINGS_ERROR = "missing 'results.bindings' key."
+BINDINGS_MUST_BE_LIST_ERROR = "'results.bindings' must be a list."
 
 
 def parse_acts_results(results: Mapping[str, Any]) -> list[EurlexOfficialAct]:
@@ -15,7 +18,7 @@ def parse_acts_results(results: Mapping[str, Any]) -> list[EurlexOfficialAct]:
         bindings = results["results"]["bindings"]
     except KeyError as exc:
         raise KeyError(
-            INVALID_SPARQL_RESPONSE_ERROR.format("missing 'results.bindings'")
+            MISSING_RESULTS_BINDINGS_ERROR
         ) from exc
 
     if not isinstance(bindings, list):
@@ -71,8 +74,7 @@ def acts_to_dataframe(acts: list[EurlexOfficialAct]) -> Any:
         pandas = importlib.import_module("pandas")
     except ImportError as exc:
         raise ImportError(
-            "pandas is required to use output_format='df'. "
-            "Install pandas or install bulletin-fetcher[pandas]."
+            MISSING_DEPENDENCY_ERROR.format("pandas", "pandas")
         ) from exc
 
     return pandas.DataFrame(acts_to_json(acts))
@@ -84,8 +86,7 @@ def acts_to_xml(acts: list[EurlexOfficialAct]) -> str:
         dicttoxml = importlib.import_module("dicttoxml")
     except ImportError as exc:
         raise ImportError(
-            "dicttoxml is required to use output_format='xml'. "
-            "Install dicttoxml or install bulletin-fetcher[dicttoxml]."
+            MISSING_DEPENDENCY_ERROR.format("dicttoxml", "dicttoxml")
         ) from exc
 
     acts_dicts = acts_to_json(acts)
@@ -99,12 +100,12 @@ def parse_category_types_results(results: Mapping[str, Any]) -> list[CategoryTyp
         bindings = results["results"]["bindings"]
     except KeyError as exc:
         raise KeyError(
-            INVALID_SPARQL_RESPONSE_ERROR.format("missing 'results.bindings'")
+            MISSING_RESULTS_BINDINGS_ERROR
         ) from exc
 
     if not isinstance(bindings, list):
         raise TypeError(
-            INVALID_SPARQL_RESPONSE_ERROR.format("'bindings' must be a list")
+            INVALID_SPARQL_RESPONSE_ERROR.format(BINDINGS_MUST_BE_LIST_ERROR)
         )
 
     types: list[CategoryType] = []
@@ -128,12 +129,12 @@ def parse_institution_types_results(
         bindings = results["results"]["bindings"]
     except KeyError as exc:
         raise KeyError(
-            INVALID_SPARQL_RESPONSE_ERROR.format("missing 'results.bindings'")
+            MISSING_RESULTS_BINDINGS_ERROR
         ) from exc
 
     if not isinstance(bindings, list):
         raise TypeError(
-            INVALID_SPARQL_RESPONSE_ERROR.format("'bindings' must be a list")
+            INVALID_SPARQL_RESPONSE_ERROR.format(BINDINGS_MUST_BE_LIST_ERROR)
         )
 
     types: list[InstitutionType] = []

@@ -254,7 +254,7 @@ class TestActsToDataFrame:
             "bulletin.eurlex.converters.importlib.import_module", raise_import_error
         )
 
-        with pytest.raises(ImportError, match="pandas is required"):
+        with pytest.raises(ImportError, match=r"Missing dependency: pandas\. Install it or install bulletin-fetcher\[pandas\]\."):
             acts_to_dataframe([])
 
 
@@ -324,7 +324,7 @@ class TestActsToXml:
             "bulletin.eurlex.converters.importlib.import_module", raise_import_error
         )
 
-        with pytest.raises(ImportError, match="dicttoxml is required"):
+        with pytest.raises(ImportError, match=r"Missing dependency: dicttoxml\. Install it or install bulletin-fetcher\[dicttoxml\]\."):
             acts_to_xml([])
 
 
@@ -370,7 +370,7 @@ class TestParseCategoryTypesResults:
 
     def test_raises_for_invalid_bindings_type(self) -> None:
         response = {"results": {"bindings": {"not": "a-list"}}}
-        with pytest.raises(TypeError, match="'bindings' must be a list"):
+        with pytest.raises(TypeError, match=r"Invalid SPARQL response: 'results\.bindings' must be a list\."):
             parse_category_types_results(response)
 
     def test_raises_for_invalid_binding_entry(self) -> None:
@@ -380,7 +380,7 @@ class TestParseCategoryTypesResults:
 
     def test_raises_for_missing_bindings(self) -> None:
         response = {"results": {}}
-        with pytest.raises(KeyError, match="Invalid SPARQL response"):
+        with pytest.raises(KeyError, match=r"missing 'results\.bindings' key\."):
             parse_category_types_results(response)
 
 
@@ -437,7 +437,7 @@ class TestParseInstitutionTypesResults:
 
     def test_raises_for_invalid_bindings_type(self) -> None:
         response = {"results": {"bindings": {"not": "a-list"}}}
-        with pytest.raises(TypeError, match="'bindings' must be a list"):
+        with pytest.raises(TypeError, match=r"Invalid SPARQL response: 'results\.bindings' must be a list\."):
             parse_institution_types_results(response)
 
     def test_raises_for_invalid_binding_entry(self) -> None:
@@ -449,5 +449,5 @@ class TestParseInstitutionTypesResults:
 
     def test_raises_for_missing_bindings(self) -> None:
         response = {"results": {}}
-        with pytest.raises(KeyError, match="Invalid SPARQL response"):
+        with pytest.raises(KeyError, match=r"missing 'results\.bindings' key\."):
             parse_institution_types_results(response)
