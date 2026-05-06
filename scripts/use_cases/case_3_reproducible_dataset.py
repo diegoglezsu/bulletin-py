@@ -17,13 +17,13 @@ def main() -> int:
     client = EurlexBulletinClient()
 
     DATE_START = "2020-01-01"
-    DATE_END = "2025-12-01"
+    DATE_END = "2026-05-01"
     # We want to find all acts that mention "disease" in the title, in English language.
     TITLE_KEYWORD = "disease"
     LANGUAGE = "ENG"
     # Save file in the same directory as this script
     SCRIPT_DIR = Path(__file__).resolve().parent
-    OUTPUT_FILE = SCRIPT_DIR / "dataset_eu_disease_acts_2020_2025.csv"
+    OUTPUT_FILE = SCRIPT_DIR / "dataset_eu_disease_acts_2020_2026.csv"
 
     print("=" * 60)
     print("Generator of Reproducible Dataset: EU Disease Acts")
