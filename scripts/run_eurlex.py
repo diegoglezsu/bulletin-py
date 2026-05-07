@@ -12,8 +12,8 @@ def main() -> int:
     date = "2025-01-01"
     date_end = "2026-03-31"
     title_contains = "science"
-    category_type="ANNOUNC"
-    institution_type="COM"
+    category_type = "ANNOUNC"
+    institution_type = "COM"
     language = "ENG"
     # Examples of filtering:
     # - Pass category_type="ANNOUNC" to filter by category type (e.g., announcements)
@@ -47,6 +47,23 @@ def main() -> int:
     print(f"Total acts: {len(acts)}")
     print("Done.")
 
+    if acts:
+        first_act = acts[0]
+        print("\n" + "=" * 60 + "\n")
+        print("Fetching content for the first act:")
+        print(first_act.celex_uri)
+
+        try:
+            content = client.get_act_content(
+                first_act.celex_uri,
+                language=language,
+                max_size=500_000,
+            )
+        except Exception as exc:
+            print(f"Error while fetching act content: {exc}", file=sys.stderr)
+        else:
+            print(content)
+
     print("\n" + "=" * 60 + "\n")
 
     formats = ["objects", "json", "csv", "xml", "df"]
@@ -64,7 +81,6 @@ def main() -> int:
         )
         print(output)
         print("-" * 60)
-
 
     return 0
 

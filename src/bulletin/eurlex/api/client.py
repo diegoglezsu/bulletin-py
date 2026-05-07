@@ -112,6 +112,37 @@ class EurlexBulletinClient:
         acts = parse_acts_results(response)
         return _format_acts(acts, normalized_output_format)
 
+    def get_act_content(
+        self,
+        act_id_or_uri: str,
+        language: str = DEFAULT_LANGUAGE,
+        max_size: Optional[int] = None,
+        return_bytes: bool = False,
+    ) -> Union[str, bytes]:
+        """Fetch the publication content stream for an act.
+
+        Pass either a CELEX id (for example "52025M12135") or the full URI
+        returned by `EurlexOfficialAct.celex_uri`.
+
+        Args:
+            act_id_or_uri: CELEX id or full resource URI. This is not the
+                Official Journal act number.
+            language: ISO 639-3 language code (default: "ENG").
+            max_size: Optional maximum content-stream size in bytes.
+            return_bytes: Return raw response bytes instead of decoded text.
+
+        Returns:
+            The publication content decoded as html text, or bytes when return_bytes
+            is True.
+        """
+        resource_uri = self._connector.build_act_content_url(act_id_or_uri)
+        return self._connector.fetch_publication_content(
+            resource_uri,
+            language=language,
+            max_size=max_size,
+            return_bytes=return_bytes,
+        )
+
     def get_category_types(
         self, language: str = DEFAULT_LANGUAGE
     ) -> list[CategoryType]:

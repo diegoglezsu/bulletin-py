@@ -1,19 +1,27 @@
-"""
-Connector for the EUR-Lex / Cellar SPARQL endpoint.
+"""Connector for the EUR-Lex / Cellar SPARQL endpoint and Cellar REST API.
 
 Handles query building and HTTP communication.
 """
 
+from __future__ import annotations
+
 from datetime import date
-from typing import Optional
+from typing import Optional, Union
+from urllib.parse import quote
+
 import requests  # type: ignore
 
-from ..constants import SPARQL_ENDPOINT, LANGUAGE_CODE_MAP, DEFAULT_LANGUAGE, CELLAR_DOMAIN
+from ..constants import (
+    SPARQL_ENDPOINT,
+    LANGUAGE_CODE_MAP,
+    DEFAULT_LANGUAGE,
+    CELLAR_DOMAIN,
+)
 from ..exceptions import EndpointError, QueryError
 
 
 class EurlexConnector:
-    """Connector class for the EUR-Lex / Cellar SPARQL endpoint."""
+    """Connector class for the EUR-Lex / Cellar SPARQL endpoint and REST API."""
 
     def __init__(self, endpoint: str = SPARQL_ENDPOINT, timeout: int = 300):
         self.endpoint = endpoint
@@ -56,7 +64,7 @@ class EurlexConnector:
             title_contains = title_contains.strip()
             if not title_contains:
                 raise QueryError("title_contains filter cannot be empty.")
-            
+
         if category_type is not None:
             category_type = category_type.strip()
             if not category_type:
@@ -74,11 +82,11 @@ class EurlexConnector:
                 f"Supported: {', '.join(sorted(LANGUAGE_CODE_MAP))}"
             )
 
-        language_uri = (
-            f"http://{CELLAR_DOMAIN}/resource/authority/language/{language}"
-        )
+        language_uri = f"http://{CELLAR_DOMAIN}/resource/authority/language/{language}"
 
-        filters: list[str] = self._get_act_filters(date, date_end, title_contains, category_type, institution_type)
+        filters: list[str] = self._get_act_filters(
+            date, date_end, title_contains, category_type, institution_type
+        )
 
         query_template = """
             PREFIX cdm: <http://{cellar_domain}/ontology/cdm#>
@@ -151,7 +159,7 @@ class EurlexConnector:
             The SPARQL query string.
         """
         lang_code = LANGUAGE_CODE_MAP.get(language, "en")
-        
+
         query = f"""
             PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
             PREFIX at: <http://{CELLAR_DOMAIN}/ontology/authority/>
@@ -170,7 +178,7 @@ class EurlexConnector:
             ORDER BY ?code
         """
         return query
-    
+
     def build_institution_types_query(self, language: str = DEFAULT_LANGUAGE) -> str:
         """Build a SPARQL query to fetch the list of institutions.
 
@@ -184,7 +192,7 @@ class EurlexConnector:
             The SPARQL query string.
         """
         lang_code = LANGUAGE_CODE_MAP.get(language, "en")
-        
+
         query = f"""
             PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
             PREFIX at: <http://{CELLAR_DOMAIN}/ontology/authority/>
@@ -203,6 +211,92 @@ class EurlexConnector:
             ORDER BY ?code
         """
         return query
+
+    def build_act_content_url(self, act_id_or_uri: str) -> str:
+        """Build a Cellar publication URL from a CELEX id or resource URI.
+
+        Args:
+            act_id_or_uri: CELEX id (e.g. "32014R0001") or full Cellar resource URI.
+
+        Returns:
+            A resource URI usable with Cellar's publication REST API.
+
+        Raises:
+            QueryError: If act_id_or_uri is empty.
+        """
+        identifier = act_id_or_uri.strip()
+        if not identifier:
+            raise QueryError("act_id_or_uri cannot be empty.")
+
+        if identifier.startswith(("http://", "https://")):
+            return identifier
+
+        return f"http://{CELLAR_DOMAIN}/resource/celex/{quote(identifier, safe='')}"
+
+    def fetch_publication_content(
+        self,
+        resource_uri: str,
+        language: str = DEFAULT_LANGUAGE,
+        max_size: Optional[int] = None,
+        return_bytes: bool = False,
+    ) -> Union[str, bytes]:
+        """Fetch publication content from EU API.
+
+        Args:
+            resource_uri: Full Cellar resource URI.
+            language: ISO 639-3 language code used by Cellar (e.g. "ENG").
+            max_size: Optional maximum content-stream size in bytes.
+            return_bytes: Return raw response bytes instead of decoded text.
+
+        Returns:
+            The response body decoded as text, or raw bytes when return_bytes is True.
+
+        Raises:
+            QueryError: If language, resource_uri, or max_size are invalid.
+            EndpointError: If the request fails or Cellar is unreachable.
+        """
+        if not resource_uri.strip():
+            raise QueryError("resource_uri cannot be empty.")
+
+        language = language.strip().upper()
+        if LANGUAGE_CODE_MAP.get(language) is None:
+            raise QueryError(
+                f"Unsupported language: '{language}'. "
+                f"Supported: {', '.join(sorted(LANGUAGE_CODE_MAP))}"
+            )
+
+        headers = {
+            "Accept": "application/xhtml+xml",
+            "Accept-Language": language.lower(),
+        }
+
+        if max_size is not None:
+            if max_size <= 0:
+                raise QueryError("max_size must be a positive integer.")
+            headers["Accept-Max-Cs-Size"] = str(max_size)
+
+        try:
+            response = requests.get(
+                resource_uri,
+                timeout=self.timeout,
+                headers=headers,
+                allow_redirects=True,
+            )
+            response.raise_for_status()
+            if return_bytes:
+                return response.content
+            return response.text
+        except requests.exceptions.HTTPError as e:
+            raise EndpointError(
+                f"EU API returned HTTP {e.response.status_code}",
+                status_code=e.response.status_code,
+                endpoint=resource_uri,
+            ) from e
+        except requests.exceptions.RequestException as e:
+            raise EndpointError(
+                f"Failed to reach EU API: {e}",
+                endpoint=resource_uri,
+            ) from e
 
     def execute_query(self, query: str) -> dict:
         """Send a SPARQL query to the endpoint and return the JSON response.
@@ -224,7 +318,7 @@ class EurlexConnector:
                 headers={"Accept": "application/sparql-results+json"},
             )
             response.raise_for_status()
-            return response.json() # type: ignore
+            return response.json()  # type: ignore
         except requests.exceptions.HTTPError as e:
             raise EndpointError(
                 f"SPARQL endpoint returned HTTP {e.response.status_code}",
@@ -237,7 +331,14 @@ class EurlexConnector:
                 endpoint=self.endpoint,
             ) from e
 
-    def _get_act_filters(self, date: str, date_end: Optional[str] = None, title_contains: Optional[str] = None, category_type: Optional[str] = None, institution_type: Optional[str] = None) -> list[str]:
+    def _get_act_filters(
+        self,
+        date: str,
+        date_end: Optional[str] = None,
+        title_contains: Optional[str] = None,
+        category_type: Optional[str] = None,
+        institution_type: Optional[str] = None,
+    ) -> list[str]:
         filters: list[str] = []
         if date_end is not None:
             filters.append(f'FILTER(?date >= "{date}"^^xsd:date)')
@@ -272,7 +373,9 @@ def _parse_date(value: str) -> date:
     try:
         return date.fromisoformat(value)
     except ValueError as exc:
-        raise QueryError(f"Invalid date format: '{value}'. Expected YYYY-MM-DD.") from exc
+        raise QueryError(
+            f"Invalid date format: '{value}'. Expected YYYY-MM-DD."
+        ) from exc
 
 
 def _escape_sparql_literal(value: str) -> str:
