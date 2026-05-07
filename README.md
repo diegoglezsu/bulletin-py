@@ -100,7 +100,7 @@ if acts:
     print(content_from_celex_id[:500])
 ```
 
-### Example scripts
+### Example scripts and notebooks
 
 The repository includes runnable scripts and notebooks with examples and use cases of the library. These scripts can be found in the `scripts/` directory.
 
