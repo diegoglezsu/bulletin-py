@@ -55,7 +55,7 @@ def main() -> int:
 
         try:
             content = client.get_act_content(
-                first_act.celex_uri,
+                "52025M12135",
                 language=language,
                 max_size=500_000,
             )

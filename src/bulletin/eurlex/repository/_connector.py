@@ -231,7 +231,7 @@ class EurlexConnector:
         if identifier.startswith(("http://", "https://")):
             return identifier
 
-        return f"http://{CELLAR_DOMAIN}/resource/celex/{quote(identifier, safe='')}"
+        return f"https://{CELLAR_DOMAIN}/resource/celex/{quote(identifier, safe='')}"
 
     def fetch_publication_content(
         self,

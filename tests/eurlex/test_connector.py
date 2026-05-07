@@ -99,19 +99,19 @@ class TestBuildActContentUrl:
 
     def test_celex_id(self, connector):
         url = connector.build_act_content_url("52025M12135")
-        assert url == "http://publications.europa.eu/resource/celex/52025M12135"
+        assert url == "https://publications.europa.eu/resource/celex/52025M12135"
 
     def test_full_resource_uri(self, connector):
-        uri = "http://publications.europa.eu/resource/celex/52025M12135"
+        uri = "https://publications.europa.eu/resource/celex/52025M12135"
         assert connector.build_act_content_url(uri) == uri
 
     def test_strips_identifier(self, connector):
         url = connector.build_act_content_url("  52025M12135  ")
-        assert url == "http://publications.europa.eu/resource/celex/52025M12135"
+        assert url == "https://publications.europa.eu/resource/celex/52025M12135"
 
     def test_url_encodes_celex_id(self, connector):
         url = connector.build_act_content_url("OJ 2025/1")
-        assert url == "http://publications.europa.eu/resource/celex/OJ%202025%2F1"
+        assert url == "https://publications.europa.eu/resource/celex/OJ%202025%2F1"
 
     def test_empty_identifier(self, connector):
         with pytest.raises(QueryError, match="act_id_or_uri cannot be empty"):
@@ -122,7 +122,7 @@ class TestFetchPublicationContent:
     """Tests for fetch_publication_content method."""
 
     def test_success_text(self, connector):
-        resource_uri = "http://publications.europa.eu/resource/celex/52025M12135"
+        resource_uri = "https://publications.europa.eu/resource/celex/52025M12135"
         expected_content = "<html><body>Act content</body></html>"
 
         with patch("bulletin.eurlex.repository._connector.requests.get") as mock_get:
@@ -150,7 +150,7 @@ class TestFetchPublicationContent:
         mock_response.raise_for_status.assert_called_once_with()
 
     def test_success_bytes(self, connector):
-        resource_uri = "http://publications.europa.eu/resource/celex/52025M12135"
+        resource_uri = "https://publications.europa.eu/resource/celex/52025M12135"
         expected_content = b"%PDF-1.7"
 
         with patch("bulletin.eurlex.repository._connector.requests.get") as mock_get:
@@ -166,7 +166,7 @@ class TestFetchPublicationContent:
         assert result == expected_content
 
     def test_lowercase_language_is_normalized(self, connector):
-        resource_uri = "http://publications.europa.eu/resource/celex/52025M12135"
+        resource_uri = "https://publications.europa.eu/resource/celex/52025M12135"
 
         with patch("bulletin.eurlex.repository._connector.requests.get") as mock_get:
             mock_response = MagicMock()
@@ -181,7 +181,7 @@ class TestFetchPublicationContent:
     def test_unsupported_language(self, connector):
         with pytest.raises(QueryError, match="Unsupported language: 'XYZ'"):
             connector.fetch_publication_content(
-                "http://publications.europa.eu/resource/celex/52025M12135",
+                "https://publications.europa.eu/resource/celex/52025M12135",
                 language="XYZ",
             )
 
@@ -192,12 +192,12 @@ class TestFetchPublicationContent:
     def test_invalid_max_size(self, connector):
         with pytest.raises(QueryError, match="max_size must be a positive integer"):
             connector.fetch_publication_content(
-                "http://publications.europa.eu/resource/celex/52025M12135",
+                "https://publications.europa.eu/resource/celex/52025M12135",
                 max_size=0,
             )
 
     def test_http_error(self, connector):
-        resource_uri = "http://publications.europa.eu/resource/celex/52025M12135"
+        resource_uri = "https://publications.europa.eu/resource/celex/52025M12135"
 
         with patch("bulletin.eurlex.repository._connector.requests.get") as mock_get:
             mock_response = MagicMock()
@@ -215,7 +215,7 @@ class TestFetchPublicationContent:
         assert "HTTP 404" in str(exc_info.value)
 
     def test_connection_error(self, connector):
-        resource_uri = "http://publications.europa.eu/resource/celex/52025M12135"
+        resource_uri = "https://publications.europa.eu/resource/celex/52025M12135"
 
         with patch("bulletin.eurlex.repository._connector.requests.get") as mock_get:
             mock_get.side_effect = requests.exceptions.ConnectionError("Failed")
@@ -225,7 +225,7 @@ class TestFetchPublicationContent:
 
         assert exc_info.value.status_code is None
         assert exc_info.value.endpoint == resource_uri
-        assert "Failed to reach Cellar REST API" in str(exc_info.value)
+        assert "Failed to reach EU API" in str(exc_info.value)
 
 
 class TestExecuteQuery:
