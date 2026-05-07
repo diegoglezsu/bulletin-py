@@ -67,6 +67,18 @@ if acts:
     first = acts[0]
     print(first.celex_uri)
     print(first.title)
+
+    first_content = client.get_act_content(
+        first.celex_uri,
+        language="ENG",
+    )
+    print(first_content[:500])
+
+    content_from_celex_id = client.get_act_content(
+        "52025M12135",
+        language="ENG",
+    )
+    print(content_from_celex_id[:500])
 ```
 
 ### Run Example Scripts

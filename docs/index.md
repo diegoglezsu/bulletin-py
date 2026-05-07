@@ -17,6 +17,7 @@ EU legal acts can be queried through public semantic web infrastructure, but usi
 
 - Search EU legal acts from the Official Journal of the European Union.
 - Filter acts by date or date range, act type, publishing institution, text contained in the act title, language.
+- Fetch the content stream of an act by CELEX id or by the URI returned in search results.
 - Retrieve available act types and publishing institutions.
 - Return act search results as Python objects, JSON-compatible dictionaries, XML, CSV or pandas DataFrames.
 - Work with Python instead of raw SPARQL queries.

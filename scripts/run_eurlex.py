@@ -10,8 +10,10 @@ def main() -> int:
     client = EurlexBulletinClient()
 
     date = "2025-01-01"
-    date_end = "2025-03-31"
-    title_contains = "artificial intelligence"
+    date_end = "2026-03-31"
+    title_contains = "science"
+    category_type = "ANNOUNC"
+    institution_type = "COM"
     language = "ENG"
     # Examples of filtering:
     # - Pass category_type="ANNOUNC" to filter by category type (e.g., announcements)
@@ -20,11 +22,11 @@ def main() -> int:
     try:
         acts = client.get_acts(
             date=date,
-            language=language,
             date_end=date_end,
+            language=language,
             title_contains=title_contains,
-            category_type=None,
-            institution_type=None,
+            category_type=category_type,
+            institution_type=institution_type,
         )
     except Exception as exc:
         print(f"Error while fetching acts: {exc}", file=sys.stderr)
@@ -45,51 +47,40 @@ def main() -> int:
     print(f"Total acts: {len(acts)}")
     print("Done.")
 
+    if acts:
+        first_act = acts[0]
+        print("\n" + "=" * 60 + "\n")
+        print("Fetching content for the first act:")
+        print(first_act.celex_uri)
+
+        try:
+            content = client.get_act_content(
+                "52025M12135",
+                language=language,
+                max_size=500_000,
+            )
+        except Exception as exc:
+            print(f"Error while fetching act content: {exc}", file=sys.stderr)
+        else:
+            print(content)
+
     print("\n" + "=" * 60 + "\n")
 
-    # Get data in CSV
-    csv_output = client.get_acts(
-        date=date,
-        date_end=date_end,
-        title_contains=title_contains,
-        language=language,
-        output_format="csv",
-    )
-    print("CSV Output:")
-    print(csv_output)
+    formats = ["objects", "json", "csv", "xml", "df"]
 
-    # Get data in XML
-    xml_output = client.get_acts(
-        date=date,
-        date_end=date_end,
-        title_contains=title_contains,
-        language=language,
-        output_format="xml",
-    )
-    print("XML Output:")
-    print(xml_output)
-
-    # Get data in JSON
-    json_output = client.get_acts(
-        date=date,
-        date_end=date_end,
-        title_contains=title_contains,
-        language=language,
-        output_format="json",
-    )
-    print("JSON Output:")
-    print(json_output)
-
-    # Get data in pandas DataFrame format
-    dataframe_output = client.get_acts(
-        date=date,
-        date_end=date_end,
-        title_contains=title_contains,
-        language=language,
-        output_format="df",
-    )
-    print("DataFrame Output:")
-    print(dataframe_output.head())
+    for fmt in formats:
+        print(f"Testing output format: {fmt}")
+        output = client.get_acts(
+            date=date,
+            date_end=date_end,
+            title_contains=title_contains,
+            language=language,
+            category_type=category_type,
+            institution_type=institution_type,
+            output_format=fmt,
+        )
+        print(output)
+        print("-" * 60)
 
     return 0
 

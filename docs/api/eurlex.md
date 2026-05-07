@@ -3,8 +3,9 @@
 EUR-Lex support is split into two layers:
 
 - API layer: high-level client and typed parsing models.
-- Repository layer: connector for query construction and endpoint communication.
+- Repository layer: connector for SPARQL query construction, endpoint communication and Cellar publication content retrieval.
 - [Official SPARQL Query Editor](https://publications.europa.eu/webapi/rdf/sparql)
+- [Official Cellar publication REST API](https://op.europa.eu/en/web/cellar/cellar-data/publications)
 
 ## Basic Imports
 

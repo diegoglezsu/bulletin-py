@@ -25,6 +25,7 @@ EU legal acts can be queried through public semantic web infrastructure, but usi
 
 - Search EU legal acts from the Official Journal of the European Union.
 - Filter acts by date or date range, act type, publishing institution, text contained in the act title, language.
+- Fetch the content stream of an act by CELEX id or by the URI returned in search results.
 - Retrieve available act types and publishing institutions.
 - Return act search results as Python objects, JSON-compatible dictionaries, XML, CSV or pandas DataFrames.
 - Work with Python instead of raw SPARQL queries.
@@ -71,6 +72,7 @@ acts = client.get_acts(
     language="ENG"
 )
 
+# CSV output
 acts_csv = client.get_acts(
     date="2025-01-01",
     date_end="2025-03-31",
@@ -79,27 +81,23 @@ acts_csv = client.get_acts(
     output_format="csv",
 )
 
-acts_xml = client.get_acts(
-    date="2025-01-01",
-    date_end="2025-03-31",
-    title_contains="artificial intelligence",
-    language="ENG",
-    output_format="xml",
-)
-
-acts_df = client.get_acts(
-    date="2025-01-01",
-    date_end="2025-03-31",
-    title_contains="artificial intelligence",
-    language="ENG",
-    output_format="df",
-)
-
 print(f"Total acts: {len(acts)}")
 if acts:
     first = acts[0]
     print(first.celex_uri)
     print(first.title)
+
+    first_content = client.get_act_content(
+        first.celex_uri,
+        language="ENG",
+    )
+    print(first_content[:500])
+
+    content_from_celex_id = client.get_act_content(
+        "52025M12135",
+        language="ENG",
+    )
+    print(content_from_celex_id[:500])
 ```
 
 ### Example scripts

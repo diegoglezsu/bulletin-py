@@ -47,7 +47,9 @@ class TestBuildActsQuery:
         assert 'FILTER(?date <= "2024-01-31"^^xsd:date)' in query
 
     def test_title_contains(self, connector):
-        query = connector.build_acts_query(date="2024-01-01", title_contains="regulation")
+        query = connector.build_acts_query(
+            date="2024-01-01", title_contains="regulation"
+        )
         assert 'CONTAINS(LCASE(STR(?title)), LCASE("regulation"))' in query
 
     def test_category_type(self, connector):
@@ -92,6 +94,140 @@ class TestBuildInstitutionTypesQuery:
         assert 'FILTER(LANG(?label) = "es")' in query
 
 
+class TestBuildActContentUrl:
+    """Tests for build_act_content_url method."""
+
+    def test_celex_id(self, connector):
+        url = connector.build_act_content_url("52025M12135")
+        assert url == "https://publications.europa.eu/resource/celex/52025M12135"
+
+    def test_full_resource_uri(self, connector):
+        uri = "https://publications.europa.eu/resource/celex/52025M12135"
+        assert connector.build_act_content_url(uri) == uri
+
+    def test_strips_identifier(self, connector):
+        url = connector.build_act_content_url("  52025M12135  ")
+        assert url == "https://publications.europa.eu/resource/celex/52025M12135"
+
+    def test_url_encodes_celex_id(self, connector):
+        url = connector.build_act_content_url("OJ 2025/1")
+        assert url == "https://publications.europa.eu/resource/celex/OJ%202025%2F1"
+
+    def test_empty_identifier(self, connector):
+        with pytest.raises(QueryError, match="act_id_or_uri cannot be empty"):
+            connector.build_act_content_url("   ")
+
+
+class TestFetchPublicationContent:
+    """Tests for fetch_publication_content method."""
+
+    def test_success_text(self, connector):
+        resource_uri = "https://publications.europa.eu/resource/celex/52025M12135"
+        expected_content = "<html><body>Act content</body></html>"
+
+        with patch("bulletin.eurlex.repository._connector.requests.get") as mock_get:
+            mock_response = MagicMock()
+            mock_response.text = expected_content
+            mock_get.return_value = mock_response
+
+            result = connector.fetch_publication_content(
+                resource_uri,
+                language="ENG",
+                max_size=2048,
+            )
+
+        assert result == expected_content
+        mock_get.assert_called_once_with(
+            resource_uri,
+            timeout=300,
+            headers={
+                "Accept": "application/xhtml+xml",
+                "Accept-Language": "eng",
+                "Accept-Max-Cs-Size": "2048",
+            },
+            allow_redirects=True,
+        )
+        mock_response.raise_for_status.assert_called_once_with()
+
+    def test_success_bytes(self, connector):
+        resource_uri = "https://publications.europa.eu/resource/celex/52025M12135"
+        expected_content = b"%PDF-1.7"
+
+        with patch("bulletin.eurlex.repository._connector.requests.get") as mock_get:
+            mock_response = MagicMock()
+            mock_response.content = expected_content
+            mock_get.return_value = mock_response
+
+            result = connector.fetch_publication_content(
+                resource_uri,
+                return_bytes=True,
+            )
+
+        assert result == expected_content
+
+    def test_lowercase_language_is_normalized(self, connector):
+        resource_uri = "https://publications.europa.eu/resource/celex/52025M12135"
+
+        with patch("bulletin.eurlex.repository._connector.requests.get") as mock_get:
+            mock_response = MagicMock()
+            mock_response.text = "<html></html>"
+            mock_get.return_value = mock_response
+
+            connector.fetch_publication_content(resource_uri, language="eng")
+
+        call_kwargs = mock_get.call_args[1]
+        assert call_kwargs["headers"]["Accept-Language"] == "eng"
+
+    def test_unsupported_language(self, connector):
+        with pytest.raises(QueryError, match="Unsupported language: 'XYZ'"):
+            connector.fetch_publication_content(
+                "https://publications.europa.eu/resource/celex/52025M12135",
+                language="XYZ",
+            )
+
+    def test_empty_resource_uri(self, connector):
+        with pytest.raises(QueryError, match="resource_uri cannot be empty"):
+            connector.fetch_publication_content("   ")
+
+    def test_invalid_max_size(self, connector):
+        with pytest.raises(QueryError, match="max_size must be a positive integer"):
+            connector.fetch_publication_content(
+                "https://publications.europa.eu/resource/celex/52025M12135",
+                max_size=0,
+            )
+
+    def test_http_error(self, connector):
+        resource_uri = "https://publications.europa.eu/resource/celex/52025M12135"
+
+        with patch("bulletin.eurlex.repository._connector.requests.get") as mock_get:
+            mock_response = MagicMock()
+            mock_response.status_code = 404
+            http_error = requests.exceptions.HTTPError("404 Client Error")
+            http_error.response = mock_response
+            mock_response.raise_for_status.side_effect = http_error
+            mock_get.return_value = mock_response
+
+            with pytest.raises(EndpointError) as exc_info:
+                connector.fetch_publication_content(resource_uri)
+
+        assert exc_info.value.status_code == 404
+        assert exc_info.value.endpoint == resource_uri
+        assert "HTTP 404" in str(exc_info.value)
+
+    def test_connection_error(self, connector):
+        resource_uri = "https://publications.europa.eu/resource/celex/52025M12135"
+
+        with patch("bulletin.eurlex.repository._connector.requests.get") as mock_get:
+            mock_get.side_effect = requests.exceptions.ConnectionError("Failed")
+
+            with pytest.raises(EndpointError) as exc_info:
+                connector.fetch_publication_content(resource_uri)
+
+        assert exc_info.value.status_code is None
+        assert exc_info.value.endpoint == resource_uri
+        assert "Failed to reach EU API" in str(exc_info.value)
+
+
 class TestExecuteQuery:
     """Tests for execute_query method."""
 
@@ -112,7 +248,9 @@ class TestExecuteQuery:
     def test_connection_error(self, connector):
         query = "SELECT * WHERE { ?s ?p ?o } LIMIT 1"
         with patch("bulletin.eurlex.repository._connector.requests.post") as mock_post:
-            mock_post.side_effect = requests.exceptions.ConnectionError("Failed to connect")
+            mock_post.side_effect = requests.exceptions.ConnectionError(
+                "Failed to connect"
+            )
             with pytest.raises(EndpointError) as exc_info:
                 connector.execute_query(query)
             assert exc_info.value.status_code is None
@@ -130,7 +268,7 @@ class TestExecuteQuery:
         query = "SELECT * WHERE { ?s ?p ?o } LIMIT 1"
         expected_response = {
             "head": {"vars": ["s", "p", "o"]},
-            "results": {"bindings": []}
+            "results": {"bindings": []},
         }
         with patch("bulletin.eurlex.repository._connector.requests.post") as mock_post:
             mock_response = MagicMock()
@@ -169,7 +307,9 @@ class TestExecuteQueryIntegration:
         assert "HTTP 400" in str(exc_info.value)
 
     def test_unreachable_endpoint(self):
-        fake_connector = EurlexConnector(endpoint="https://esto-no-existe.europa.eu/sparql")
+        fake_connector = EurlexConnector(
+            endpoint="https://esto-no-existe.europa.eu/sparql"
+        )
         with pytest.raises(EndpointError) as exc_info:
             fake_connector.execute_query("SELECT * WHERE { ?s ?p ?o } LIMIT 1")
         assert exc_info.value.status_code is None
