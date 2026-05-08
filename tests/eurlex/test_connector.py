@@ -141,7 +141,7 @@ class TestFetchPublicationContent:
             resource_uri,
             timeout=300,
             headers={
-                "Accept": "application/xhtml+xml",
+                "Accept": "application/xhtml+xml, text/html;q=0.9, application/xml;q=0.8, text/xml;q=0.7",
                 "Accept-Language": "eng",
                 "Accept-Max-Cs-Size": "2048",
             },

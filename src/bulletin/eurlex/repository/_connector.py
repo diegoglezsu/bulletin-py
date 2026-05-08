@@ -266,7 +266,7 @@ class EurlexConnector:
             )
 
         headers = {
-            "Accept": "application/xhtml+xml",
+            "Accept": "application/xhtml+xml, text/html;q=0.9, application/xml;q=0.8, text/xml;q=0.7",
             "Accept-Language": language.lower(),
         }
 
