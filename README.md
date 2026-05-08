@@ -72,19 +72,9 @@ acts = client.get_acts(
     language="ENG"
 )
 
-# CSV output
-acts_csv = client.get_acts(
-    date="2025-01-01",
-    date_end="2025-03-31",
-    title_contains="artificial intelligence",
-    language="ENG",
-    output_format="csv",
-)
-
 print(f"Total acts: {len(acts)}")
 if acts:
     first = acts[0]
-    print(first.celex_uri)
     print(first.title)
 
     first_content = client.get_act_content(
