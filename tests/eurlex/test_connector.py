@@ -21,7 +21,21 @@ class TestBuildActsQuery:
             "expression_uses_language <http://publications.europa.eu/resource/authority/language/ENG>"
             in query
         )
-        assert 'FILTER(LANG(?categoryLabel) = "en")' in query
+        assert 'FILTER(LANG(?categoryLabelValue) = "en")' in query
+
+    def test_includes_celex_and_oj_resource_uris(self, connector):
+        query = connector.build_acts_query("2024-01-01")
+        assert 'CONTAINS(STR(?celexAct), "/resource/celex/")' in query
+        assert 'CONTAINS(STR(?ojAct), "/resource/oj/")' in query
+        assert "BIND(COALESCE(?celexAct, ?ojAct) AS ?act)" in query
+
+    def test_includes_legacy_official_journal_date_path(self, connector):
+        query = connector.build_acts_query("2017-01-04")
+        assert "cdm:official-journal-act_date_publication" in query
+        assert (
+            "cdm:resource_legal_published_in_official-journal/"
+            "cdm:publication_general_date_publication"
+        ) in query
 
     def test_custom_language(self, connector):
         query = connector.build_acts_query("2024-01-01", language="ENG")
@@ -29,7 +43,7 @@ class TestBuildActsQuery:
             "expression_uses_language <http://publications.europa.eu/resource/authority/language/ENG>"
             in query
         )
-        assert 'FILTER(LANG(?categoryLabel) = "en")' in query
+        assert 'FILTER(LANG(?categoryLabelValue) = "en")' in query
 
     def test_invalid_date(self, connector):
         with pytest.raises(QueryError, match="Invalid date format"):
@@ -50,11 +64,11 @@ class TestBuildActsQuery:
         query = connector.build_acts_query(
             date="2024-01-01", title_contains="regulation"
         )
-        assert 'CONTAINS(LCASE(STR(?title)), LCASE("regulation"))' in query
+        assert 'CONTAINS(LCASE(STR(?titleValue)), LCASE("regulation"))' in query
 
     def test_category_type(self, connector):
         query = connector.build_acts_query(date="2024-01-01", category_type="RES")
-        assert 'FILTER(?categoryCode = "RES")' in query
+        assert 'FILTER(REPLACE(STR(?category), ".*/", "") = "RES")' in query
 
     def test_invalid_category_type(self, connector):
         with pytest.raises(QueryError, match="category_type filter cannot be empty"):

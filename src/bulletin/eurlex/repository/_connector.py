@@ -84,8 +84,9 @@ class EurlexConnector:
 
         language_uri = f"http://{CELLAR_DOMAIN}/resource/authority/language/{language}"
 
+        date_filters: list[str] = self._get_date_filters(date, date_end)
         filters: list[str] = self._get_act_filters(
-            date, date_end, title_contains, category_type, institution_type
+            title_contains, category_type, institution_type
         )
 
         query_template = """
@@ -95,57 +96,73 @@ class EurlexConnector:
             PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 
             SELECT DISTINCT
-            ?act ?actNumber ?title ?date
-            ?sectionCode ?subsectionCode
-            ?categoryCode ?categoryUri ?categoryLabel
-            ?institutionCode ?institutionUri ?institutionLabel
+            ?act
+            (?number AS ?actNumber)
+            (?titleValue AS ?title)
+            ?date
+            (?section AS ?sectionCode)
+            (?subsection AS ?subsectionCode)
+            (REPLACE(STR(?category), ".*/", "") AS ?categoryCode)
+            (?category AS ?categoryUri)
+            (?categoryLabelValue AS ?categoryLabel)
+            (REPLACE(STR(?institution), ".*/", "") AS ?institutionCode)
+            (?institution AS ?institutionUri)
+            (?institutionLabelValue AS ?institutionLabel)
             WHERE {{
-            ?c_act cdm:official-journal-act_date_publication ?date ;
-                    owl:sameAs ?act .
+            ?c_act (
+                cdm:official-journal-act_date_publication
+                | cdm:resource_legal_published_in_official-journal/cdm:publication_general_date_publication
+            ) ?date .
+            {date_filters_str}
+
+            OPTIONAL {{
+                ?c_act owl:sameAs ?celexAct .
+                FILTER(CONTAINS(STR(?celexAct), "/resource/celex/"))
+            }}
+            OPTIONAL {{
+                ?c_act owl:sameAs ?ojAct .
+                FILTER(CONTAINS(STR(?ojAct), "/resource/oj/"))
+            }}
+            BIND(COALESCE(?celexAct, ?ojAct) AS ?act)
+            FILTER(BOUND(?act))
 
             ?expr cdm:expression_belongs_to_work ?c_act ;
                     cdm:expression_uses_language <{language_uri}> ;
-                    cdm:expression_title ?title .
+                    cdm:expression_title ?titleValue .
 
-            OPTIONAL {{ ?c_act cdm:official-journal-act_section_oj ?sectionCode . }}
-            OPTIONAL {{ ?c_act cdm:official-journal-act_subsection_oj ?subsectionCode . }}
+            OPTIONAL {{ ?c_act cdm:official-journal-act_section_oj ?section . }}
+            OPTIONAL {{ ?c_act cdm:official-journal-act_subsection_oj ?subsection . }}
 
             OPTIONAL {{
-                ?c_act cdm:work_has_resource-type ?categoryUri .
+                ?c_act cdm:work_has_resource-type ?category .
                 OPTIONAL {{
-                ?categoryUri skos:prefLabel ?categoryLabel .
-                FILTER(LANG(?categoryLabel) = "{lang_code}")
+                    ?category skos:prefLabel ?categoryLabelValue .
+                    FILTER(LANG(?categoryLabelValue) = "{lang_code}")
                 }}
             }}
 
             OPTIONAL {{
-                ?c_act cdm:work_created_by_agent ?institutionUri .
+                ?c_act cdm:work_created_by_agent ?institution .
                 OPTIONAL {{
-                ?institutionUri skos:prefLabel ?institutionLabel .
-                FILTER(LANG(?institutionLabel) = "{lang_code}")
+                    ?institution skos:prefLabel ?institutionLabelValue .
+                    FILTER(LANG(?institutionLabelValue) = "{lang_code}")
                 }}
             }}
-
-            BIND(
-                IF(BOUND(?categoryUri), REPLACE(STR(?categoryUri), ".*/", ""), "")
-                AS ?categoryCode
-            )
-
-            BIND(
-                IF(BOUND(?institutionUri), REPLACE(STR(?institutionUri), ".*/", ""), "")
-                AS ?institutionCode
-            )
 
             {filters_str}
 
-            OPTIONAL {{ ?c_act cdm:official-journal-act_number ?actNumber . }}
+            OPTIONAL {{ ?c_act cdm:official-journal-act_number ?officialJournalActNumber . }}
+            OPTIONAL {{ ?c_act cdm:resource_legal_number_natural ?resourceLegalNumber . }}
+            BIND(COALESCE(STR(?officialJournalActNumber), STR(?resourceLegalNumber)) AS ?number)
             }}
-            ORDER BY ?sectionCode ?subsectionCode ?categoryLabel ?institutionLabel
+            ORDER BY ?date ?act
         """
+
         return query_template.format(
             language_uri=language_uri,
             lang_code=lang_code,
             cellar_domain=CELLAR_DOMAIN,
+            date_filters_str="\n  ".join(date_filters),
             filters_str="\n  ".join(filters),
         )
 
@@ -331,36 +348,37 @@ class EurlexConnector:
                 endpoint=self.endpoint,
             ) from e
 
-    def _get_act_filters(
-        self,
-        date: str,
-        date_end: Optional[str] = None,
-        title_contains: Optional[str] = None,
-        category_type: Optional[str] = None,
-        institution_type: Optional[str] = None,
-    ) -> list[str]:
+    def _get_date_filters(self, date: str, date_end: Optional[str] = None) -> list[str]:
         filters: list[str] = []
         if date_end is not None:
             filters.append(f'FILTER(?date >= "{date}"^^xsd:date)')
             filters.append(f'FILTER(?date <= "{date_end}"^^xsd:date)')
         else:
             filters.append(f'FILTER(?date = "{date}"^^xsd:date)')
+        return filters
 
+    def _get_act_filters(
+        self,
+        title_contains: Optional[str] = None,
+        category_type: Optional[str] = None,
+        institution_type: Optional[str] = None,
+    ) -> list[str]:
+        filters: list[str] = []
         if title_contains is not None:
             escaped_title = _escape_sparql_literal(title_contains)
             filters.append(
-                f'FILTER(CONTAINS(LCASE(STR(?title)), LCASE("{escaped_title}")))'
+                f'FILTER(CONTAINS(LCASE(STR(?titleValue)), LCASE("{escaped_title}")))'
             )
 
         if category_type is not None:
-            filters.append(f'FILTER(?categoryCode = "{category_type}")')
+            filters.append(
+                f'FILTER(REPLACE(STR(?category), ".*/", "") = "{category_type}")'
+            )
 
         if institution_type is not None:
-            filters.append(f'FILTER(?institutionCode = "{institution_type}")')
-
-        filters.append(
-            f'FILTER(STRSTARTS(STR(?act), "http://{CELLAR_DOMAIN}/resource/celex/"))'
-        )
+            filters.append(
+                f'FILTER(REPLACE(STR(?institution), ".*/", "") = "{institution_type}")'
+            )
         return filters
 
 
