@@ -1,5 +1,6 @@
 """Small script to query EUR-Lex acts using bulletin-fetcher."""
 
+from sqlite3 import Date
 import sys
 
 from bulletin.eurlex.api.client import EurlexBulletinClient
@@ -81,6 +82,12 @@ def main() -> int:
         )
         print(output)
         print("-" * 60)
+
+    today_acts = client.get_acts(date=Date.today().isoformat())
+    print(f"Acts published on {Date.today().isoformat()}: {len(today_acts)}")
+    for act in today_acts:
+        print(f"- {act.title} ({act.date}) {act.institution_label}")
+    print("Today documents can be checked at https://eur-lex.europa.eu/oj/direct-access.html")
 
     return 0
 
