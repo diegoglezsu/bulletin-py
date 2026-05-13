@@ -29,7 +29,7 @@ keywords:
 identifiers:
   - type: doi
     value: "10.5281/zenodo.20156191"
-    description: "DOI for bulletin-fetcher software (version 0.4.4) on Zenodo"
+    description: "DOI for bulletin-fetcher software"
 
 license: MIT
 repository-code: "https://github.com/diegoglezsu/bulletin-fetcher"
