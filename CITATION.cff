@@ -14,12 +14,16 @@ abstract: >
   The bulletin-fetcher library abstracts this complexity behind a simple Python interface. Users can retrieve legal acts by publication date, date ranges, act type, publishing institution and textual content, while receiving Python objects, JSON-compatible dictionaries, XML, CSV outputs or pandas DataFrames suitable for further analysis.
 
 keywords:
-  - legal
-  - official bulletins
+  - Official Gazette
+  - Legal
+  - European Legislation
+  - SPARQL
+  - Semantic Web
   - EUR-Lex
   - Cellar
-  - SPARQL
-  - European Union
+  - Data Analysis
+  - Policy Research
+  - Legal Analytics
   - Python
 
 license: MIT
