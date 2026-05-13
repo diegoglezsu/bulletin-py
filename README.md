@@ -6,6 +6,7 @@
 [![Codecov status](https://codecov.io/github/diegoglezsu/bulletin-fetcher/badge.svg?branch=main&service=github)](https://app.codecov.io/github/diegoglezsu/bulletin-fetcher)
 [![PyPI version](https://img.shields.io/pypi/v/bulletin-fetcher.svg)](https://pypi.org/project/bulletin-fetcher/)
 [![Documentation](https://img.shields.io/badge/docs-latest-blue.svg)](https://diegoglezsu.github.io/bulletin-fetcher/)
+[![DOI](https://zenodo.org/badge/1193786609.svg)](https://doi.org/10.5281/zenodo.20156191)
 
 ## Description
 

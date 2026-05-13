@@ -26,6 +26,11 @@ keywords:
   - Legal Analytics
   - Python
 
+identifiers:
+  - type: doi
+    value: "10.5281/zenodo.20156191"
+    description: "DOI for bulletin-fetcher software (version 0.4.4) on Zenodo"
+
 license: MIT
 repository-code: "https://github.com/diegoglezsu/bulletin-fetcher"
 url: "https://diegoglezsu.github.io/bulletin-fetcher/"
