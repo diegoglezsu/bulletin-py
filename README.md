@@ -90,9 +90,14 @@ if acts:
     print(content_from_celex_id[:500])
 ```
 
-### Example scripts and notebooks
+### Use Case Examples
 
 The repository includes runnable scripts and notebooks with examples and use cases of the library. These scripts can be found in the `scripts/` directory.
+
+- [Case 1: Evolution of AI Legislation in the EU](./scripts/use_cases/case_1_ai_evolution.ipynb)
+- [Case 2: Comparison of EU Institutions](./scripts/use_cases/case_2_institution_comparison.ipynb)
+- [Case 3: Analysis of EU Legal Acts](./scripts/use_cases/case_3_legal_act_analysis.ipynb)
+- [Case 4: Tariff Analysis](./scripts/use_cases/case_4_tariff_analysis.ipynb)
 
 ## License
 
@@ -107,12 +112,8 @@ For any questions or suggestions, feel free to reach out to the author:
 
 ## Acknowledgements
 
-TODO: Add acknowledgements here.
+The authors gratefully acknowledge the financial support of the Asturian Agency for Science, Business Competitiveness and Innovation (SEKUENS) under Grant Agreement No. SEK-25-GRU-GIC-24-018. Noelia Rico and Irene Díaz also acknowledge support from the European project SCIMIN-CRM (Grant Agreement No. 101177746) and the funding from the Spanish Ministry of Science and Innovation through project PID2022-139886NB-I00.
 
 ## Citation
 
-If you use `bulletin-fetcher` in academic work, please cite the project.
-
-A `CITATION.cff` file will be added in a future release.
-
----
+If you use `bulletin-fetcher` in your research, please cite it. Citation information is available in the [`CITATION.cff`](./CITATION.cff) file.

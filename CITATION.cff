@@ -1,0 +1,29 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using the metadata below."
+title: "bulletin-fetcher: A Python library for programmatic access to EU official bulletins"
+type: software
+
+authors:
+  - family-names: "González-Suárez"
+    given-names: "Diego"
+    orcid: "https://orcid.org/0009-0004-6388-5333"
+
+abstract: >
+  EU legal acts can be queried through public semantic web infrastructure, but using the underlying SPARQL endpoint requires knowledge of RDF vocabularies, query structure and EUR-Lex metadata conventions and ontologies.
+
+  The bulletin-fetcher library abstracts this complexity behind a simple Python interface. Users can retrieve legal acts by publication date, date ranges, act type, publishing institution and textual content, while receiving Python objects, JSON-compatible dictionaries, XML, CSV outputs or pandas DataFrames suitable for further analysis.
+
+keywords:
+  - legal
+  - official bulletins
+  - EUR-Lex
+  - Cellar
+  - SPARQL
+  - European Union
+  - Python
+
+license: MIT
+repository-code: "https://github.com/diegoglezsu/bulletin-fetcher"
+url: "https://diegoglezsu.github.io/bulletin-fetcher/"
+version: "0.4.4"
+date-released: "2026-05-13"
