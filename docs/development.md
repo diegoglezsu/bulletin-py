@@ -52,7 +52,7 @@ If you encounter any issues, please report them on the [GitHub Issues page](http
 Contributions are welcome! Please follow the standard steps:
 
 1. Fork the project.
-2. Create a branch for your feature (`git checkout -b feature/AmazingFeature`).
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`).
-4. Push to the branch (`git push origin feature/AmazingFeature`).
+2. Create a branch for your feature (`git checkout -b feature/<feature-name>`).
+3. Commit your changes (`git commit -m 'feat: added <feature-name>'`).
+4. Push to the branch (`git push origin feature/<feature-name>`).
 5. Open a pull request describing your changes and the problem they solve.

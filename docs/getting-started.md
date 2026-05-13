@@ -1,9 +1,9 @@
 # Getting Started
 
-## Requirements 🐍
+## Requirements
 
 - Python 3.7+
-- Internet access for live EUR-Lex queries
+- Internet access
 
 ## Installation
 
@@ -17,12 +17,6 @@ Install with all dependencies:
 
 ```bash
 pip install bulletin-fetcher[all]
-```
-
-Install development dependencies (project clone):
-
-```bash
-pip install -e .[dev]
 ```
 
 ## First Query 🚀
@@ -43,23 +37,7 @@ acts_json = client.get_acts(
     date_end="2025-03-31",
     title_contains="artificial intelligence",
     language="ENG",
-    output_format="json",
-)
-
-acts_xml = client.get_acts(
-    date="2025-01-01",
-    date_end="2025-03-31",
-    title_contains="artificial intelligence",
-    language="ENG",
-    output_format="xml",
-)
-
-acts_df = client.get_acts(
-    date="2025-01-01",
-    date_end="2025-03-31",
-    title_contains="artificial intelligence",
-    language="ENG",
-    output_format="df",
+    output_format="json", # xml, csv, df
 )
 
 print(f"Total acts: {len(acts)}")
