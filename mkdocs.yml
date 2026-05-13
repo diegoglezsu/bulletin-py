@@ -40,6 +40,8 @@ nav:
   - development.md
   - API Reference:
       - bulletin.eurlex: api/eurlex.md
+  - Use Cases:
+      - use_cases/eurlex.md
 
 markdown_extensions:
   - admonition
