@@ -236,7 +236,7 @@ class EurlexConnector:
             act_id_or_uri: CELEX id (e.g. "32014R0001") or full Cellar resource URI.
 
         Returns:
-            A resource URI usable with Cellar's publication REST API.
+            A resource URI usable with Cellar's publication.
 
         Raises:
             QueryError: If act_id_or_uri is empty.
