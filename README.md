@@ -117,4 +117,4 @@ The authors gratefully acknowledge the financial support of the Asturian Agency 
 
 ## Citation
 
-If you use `bulletin-fetcher` in your research, please cite it. Citation information is available in the [`CITATION.cff`](./CITATION.cff) file.
+If you use `bulletin-fetcher` in your research, please cite it. Citation information is available in the [`CITATION.cff`](https://github.com/diegoglezsu/bulletin-fetcher/blob/main/CITATION.cff) file.
