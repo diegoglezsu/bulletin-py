@@ -165,17 +165,38 @@ class EurlexConnector:
             date_filters_str="\n  ".join(date_filters),
             filters_str="\n  ".join(filters),
         )
+    
+    def _get_label_filter(self, var_name: str, search: Optional[str]) -> str:
+        """ Helper method for building specific query parts, such as filters and content URLs.
+        Args:
+        - var_name: The variable name used in the SPARQL query (e.g., "label").
+        - search: Optional search string for filtering results.
 
-    def build_category_types_query(self, language: str = DEFAULT_LANGUAGE) -> str:
+        Returns:
+        - A SPARQL filter string based on the search parameter.
+            
+        """
+        if search is None:
+            return ""
+        search = search.strip()
+        if not search:
+            raise QueryError("search filter cannot be empty.")
+        escaped = _escape_sparql_literal(search)
+        return f'FILTER(BOUND(?{var_name}) && CONTAINS(LCASE(STR(?{var_name})), LCASE("{escaped}")))'
+
+    def build_category_types_query(self, language: str = DEFAULT_LANGUAGE, search: Optional[str] = None) -> str:
         """Build a SPARQL query to fetch the list of category types.
 
         Args:
-            language: ISO language code (default: "ENG").
+            language: ISO language code (default: "ENG"). Examples: "ENG", "SPA", "FRA"...
+            search: Optional case-insensitive substring filter on category type labels.
 
         Returns:
             The SPARQL query string.
         """
         lang_code = LANGUAGE_CODE_MAP.get(language, "en")
+
+        filter_line = self._get_label_filter("label", search)
 
         query = f"""
             PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
@@ -191,12 +212,13 @@ class EurlexConnector:
                 ?uri skos:prefLabel ?label .
                 FILTER(LANG(?label) = "{lang_code}")
             }}
+            {filter_line}
             }}
             ORDER BY ?code
         """
         return query
 
-    def build_institution_types_query(self, language: str = DEFAULT_LANGUAGE) -> str:
+    def build_institution_types_query(self, language: str = DEFAULT_LANGUAGE, search: Optional[str] = None) -> str:
         """Build a SPARQL query to fetch the list of institutions.
 
         Note: The corporate-body authority endpoint can be slow/unreliable.
@@ -204,11 +226,14 @@ class EurlexConnector:
 
         Args:
             language: ISO language code (default: "ENG").
+            search: Optional case-insensitive substring filter on institution type labels.
 
         Returns:
             The SPARQL query string.
         """
         lang_code = LANGUAGE_CODE_MAP.get(language, "en")
+
+        filter_line = self._get_label_filter("label", search)
 
         query = f"""
             PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
@@ -224,6 +249,7 @@ class EurlexConnector:
                 ?uri skos:prefLabel ?label .
                 FILTER(LANG(?label) = "{lang_code}")
             }}
+            {filter_line}
             }}
             ORDER BY ?code
         """

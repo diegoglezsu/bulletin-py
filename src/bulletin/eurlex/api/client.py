@@ -144,31 +144,33 @@ class EurlexBulletinClient:
         )
 
     def get_category_types(
-        self, language: str = DEFAULT_LANGUAGE
+        self, language: str = DEFAULT_LANGUAGE, search: Optional[str] = None
     ) -> list[CategoryType]:
         """Fetch the list of possible category types from the authority list. This method may last a few minutes due to the size of the authority list.
 
         Args:
             language: Language code (default: "ENG"). Examples: "ENG", "SPA", "FRA"...
+            search: Optional case-insensitive substring filter on category type labels.
 
         Returns:
             A list of CategoryType objects with 'code' and 'label' attributes.
         """
-        query = self._connector.build_category_types_query(language=language)
+        query = self._connector.build_category_types_query(language=language, search=search)
         response = self._connector.execute_query(query)
         return parse_category_types_results(response)
 
     def get_institution_types(
-        self, language: str = DEFAULT_LANGUAGE
+        self, language: str = DEFAULT_LANGUAGE, search: Optional[str] = None
     ) -> list[InstitutionType]:
         """Fetch the list of possible institution types from the authority list. This method may last a few minutes due to the size of the authority list.
 
         Args:
             language: Language code (default: "ENG"). Examples: "ENG", "SPA", "FRA"...
+            search: Optional case-insensitive substring filter on the label.
 
         Returns:
             A list of InstitutionType objects with 'code' and 'label' attributes.
         """
-        query = self._connector.build_institution_types_query(language=language)
+        query = self._connector.build_institution_types_query(language=language, search=search)
         response = self._connector.execute_query(query)
         return parse_institution_types_results(response)
