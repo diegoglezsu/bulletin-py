@@ -88,6 +88,20 @@ def main() -> int:
     for act in today_acts:
         print(f"- {act.title} ({act.date}) {act.institution_label}")
     print("Today documents can be checked at https://eur-lex.europa.eu/oj/direct-access.html")
+    
+    '''
+    # Testing institution types with a search filter
+    institution_types = client.get_institution_types(language=language, search="environment")
+    print(f"Institution types containing 'environment': {len(institution_types)}")
+    for inst_type in institution_types:
+        print(f"- {inst_type.label} ({inst_type.code})")
+    
+    # Testing category types with a search filter
+    category_types = client.get_category_types(language=language, search="communication")
+    print(f"Category types containing 'communication': {len(category_types)}")
+    for cat_type in category_types:
+        print(f"- {cat_type.label} ({cat_type.code})")
+    '''
 
     return 0
 

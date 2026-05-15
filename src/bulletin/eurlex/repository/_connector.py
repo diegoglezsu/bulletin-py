@@ -167,6 +167,15 @@ class EurlexConnector:
         )
     
     def _get_label_filter(self, var_name: str, search: Optional[str]) -> str:
+        """ Helper method for building specific query parts, such as filters and content URLs.
+        Args:
+        - var_name: The variable name used in the SPARQL query (e.g., "label").
+        - search: Optional search string for filtering results.
+
+        Returns:
+        - A SPARQL filter string based on the search parameter.
+            
+        """
         if search is None:
             return ""
         search = search.strip()
@@ -174,13 +183,13 @@ class EurlexConnector:
             raise QueryError("search filter cannot be empty.")
         escaped = _escape_sparql_literal(search)
         return f'FILTER(BOUND(?{var_name}) && CONTAINS(LCASE(STR(?{var_name})), LCASE("{escaped}")))'
-    
 
     def build_category_types_query(self, language: str = DEFAULT_LANGUAGE, search: Optional[str] = None) -> str:
         """Build a SPARQL query to fetch the list of category types.
 
         Args:
-            language: ISO language code (default: "ENG").
+            language: ISO language code (default: "ENG"). Examples: "ENG", "SPA", "FRA"...
+            search: Optional case-insensitive substring filter on category type labels.
 
         Returns:
             The SPARQL query string.
@@ -217,6 +226,7 @@ class EurlexConnector:
 
         Args:
             language: ISO language code (default: "ENG").
+            search: Optional case-insensitive substring filter on institution type labels.
 
         Returns:
             The SPARQL query string.
