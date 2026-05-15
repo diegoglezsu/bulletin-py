@@ -4,7 +4,7 @@ bulletin-fetcher is a Python library for searching and managing official bulleti
 focused on the Official Journal of the European Union.
 
 <div style="text-align: center; margin: 20px 0;">
-    <img src="assets/logo.jpg" alt="Bulletin Fetcher Logo" width="200" />
+    <img src="assets/logo.png" alt="Bulletin Fetcher Logo" width="200" />
 </div>
 
 ## Why bulletin-fetcher?

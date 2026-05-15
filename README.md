@@ -10,7 +10,7 @@
 
 ## Description
 
-![Bulletin Fetcher Logo](https://raw.githubusercontent.com/diegoglezsu/bulletin-fetcher/main/docs/assets/logo.jpg)
+![Bulletin Fetcher Logo](https://raw.githubusercontent.com/diegoglezsu/bulletin-fetcher/main/docs/assets/logo.png)
 
 **bulletin-fetcher** is a Python library for programmatic access to legal acts published in official bulletins, with current support for the **Official Journal of the European Union** through the [EUR-Lex / Cellar SPARQL endpoint](https://publications.europa.eu/webapi/rdf/sparql).
 
