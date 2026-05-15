@@ -9,13 +9,13 @@ focused on the Official Journal of the European Union.
 
 ## Why bulletin-fetcher?
 
-EU legal acts can be queried through public semantic web infrastructure, but using the underlying SPARQL endpoint requires knowledge of RDF vocabularies, query structure and EUR-Lex metadata conventions and ontologies.
+EU Official Journal acts can be queried through public semantic web infrastructure, but using the underlying SPARQL endpoint requires knowledge of RDF vocabularies, query structure and EUR-Lex metadata conventions and ontologies.
 
-`bulletin-fetcher` abstracts this complexity behind a simple Python interface. Users can retrieve legal acts by publication date, date ranges, act type, publishing institution and textual content, while receiving Python objects, JSON-compatible dictionaries, XML, CSV outputs or pandas DataFrames suitable for further analysis.
+`bulletin-fetcher` abstracts this complexity behind a simple Python interface. Users can retrieve Official Journal acts by publication date, date ranges, act type, publishing institution and textual content, while receiving Python objects, JSON-compatible dictionaries, XML, CSV outputs or pandas DataFrames suitable for further analysis.
 
 ## Main features
 
-- Search EU legal acts from the Official Journal of the European Union.
+- Search EU Official Journal acts from the Official Journal of the European Union.
 - Filter acts by date or date range, act type, publishing institution, text contained in the act title, language.
 - Fetch the content stream of an act by CELEX id or by the URI returned in search results.
 - Retrieve available act types and publishing institutions.
@@ -30,5 +30,5 @@ bulletin-fetcher can be used for:
 - Legal analytics
 - Public policy research
 - Regulatory monitoring
-- Reproducible studies based on legal acts
+- Reproducible studies based on EU acts
 - Data collection pipelines
