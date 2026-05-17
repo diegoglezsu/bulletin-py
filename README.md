@@ -106,9 +106,9 @@ This project is licensed under the MIT License. See the `LICENSE` file for detai
 
 ## Contact
 
-For any questions or suggestions, feel free to reach out to the author:
+For any questions or suggestions, feel free to reach out to the corresponding author:
 
-- **Author**: Diego González Suárez
+- **Corresponding Author**: Diego González Suárez
 - **Email**: <gonzalezsdiego@uniovi.es>
 
 ## Acknowledgements
