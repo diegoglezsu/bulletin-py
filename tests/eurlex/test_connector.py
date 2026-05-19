@@ -95,7 +95,7 @@ class TestBuildCategoryTypesQuery:
     def test_search_filters_by_label(self, connector):
         query = connector.build_category_types_query(search="regulation")
         assert (
-            'FILTER(BOUND(?label) && CONTAINS(LCASE(STR(?label)), '
+            "FILTER(BOUND(?label) && CONTAINS(LCASE(STR(?label)), "
             'LCASE("regulation")))'
         ) in query
 
@@ -129,7 +129,7 @@ class TestBuildInstitutionTypesQuery:
     def test_search_filters_by_label(self, connector):
         query = connector.build_institution_types_query(search="commission")
         assert (
-            'FILTER(BOUND(?label) && CONTAINS(LCASE(STR(?label)), '
+            "FILTER(BOUND(?label) && CONTAINS(LCASE(STR(?label)), "
             'LCASE("commission")))'
         ) in query
 
@@ -193,7 +193,10 @@ class TestFetchPublicationContent:
             resource_uri,
             timeout=300,
             headers={
-                "Accept": "application/xhtml+xml, text/html;q=0.9, application/xml;q=0.8, text/xml;q=0.7",
+                "Accept": (
+                    "application/xhtml+xml, text/html;q=0.9, "
+                    "application/xml;q=0.8, text/xml;q=0.7"
+                ),
                 "Accept-Language": "eng",
                 "Accept-Max-Cs-Size": "2048",
             },
@@ -216,6 +219,51 @@ class TestFetchPublicationContent:
             )
 
         assert result == expected_content
+
+    def test_success_pdf_returns_bytes(self, connector):
+        resource_uri = "https://publications.europa.eu/resource/celex/52025M12135"
+        expected_content = b"%PDF-1.7"
+
+        with patch("bulletin.eurlex.repository._connector.requests.get") as mock_get:
+            mock_response = MagicMock()
+            mock_response.content = expected_content
+            mock_get.return_value = mock_response
+
+            result = connector.fetch_publication_content(
+                resource_uri,
+                max_size=4096,
+                content_format="pdf",
+            )
+
+        assert result == expected_content
+        mock_get.assert_called_once_with(
+            resource_uri,
+            timeout=300,
+            headers={
+                "Accept": "application/pdf",
+                "Accept-Language": "eng",
+                "Accept-Max-Cs-Size": "4096",
+            },
+            allow_redirects=True,
+        )
+        mock_response.raise_for_status.assert_called_once_with()
+
+    def test_content_format_is_case_insensitive_and_trimmed(self, connector):
+        resource_uri = "https://publications.europa.eu/resource/celex/52025M12135"
+
+        with patch("bulletin.eurlex.repository._connector.requests.get") as mock_get:
+            mock_response = MagicMock()
+            mock_response.content = b"%PDF-1.7"
+            mock_get.return_value = mock_response
+
+            result = connector.fetch_publication_content(
+                resource_uri,
+                content_format=" PDF ",
+            )
+
+        assert result == b"%PDF-1.7"
+        call_kwargs = mock_get.call_args[1]
+        assert call_kwargs["headers"]["Accept"] == "application/pdf"
 
     def test_lowercase_language_is_normalized(self, connector):
         resource_uri = "https://publications.europa.eu/resource/celex/52025M12135"
@@ -246,6 +294,13 @@ class TestFetchPublicationContent:
             connector.fetch_publication_content(
                 "https://publications.europa.eu/resource/celex/52025M12135",
                 max_size=0,
+            )
+
+    def test_invalid_content_format(self, connector):
+        with pytest.raises(QueryError, match="Unsupported content_format"):
+            connector.fetch_publication_content(
+                "https://publications.europa.eu/resource/celex/52025M12135",
+                content_format="docx",
             )
 
     def test_http_error(self, connector):
