@@ -26,7 +26,7 @@ class TestBuildActsQuery:
     def test_uses_eli_act_uri_and_optional_celex_uri(self, connector):
         query = connector.build_acts_query("2024-01-01")
         assert (
-            'FILTER(STRSTARTS(STR(?act), "http://publications.europa.eu/resource/eli/"))'
+            'FILTER(STRSTARTS(STR(?rawAct), "http://publications.europa.eu/resource/eli/"))'
             in query
         )
         assert (
