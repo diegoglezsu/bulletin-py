@@ -576,6 +576,7 @@ class TestGetActContent:
             language="ENG",
             max_size=4096,
             return_bytes=False,
+            content_format="html",
         )
 
     def test_fetches_content_from_uri(self, client, mock_connector):
@@ -594,6 +595,7 @@ class TestGetActContent:
             language="ENG",
             max_size=None,
             return_bytes=False,
+            content_format="html",
         )
 
     def test_fetches_binary_content(self, client, mock_connector):
@@ -614,6 +616,29 @@ class TestGetActContent:
             language="ENG",
             max_size=None,
             return_bytes=True,
+            content_format="html",
+        )
+
+    def test_fetches_pdf_content(self, client, mock_connector):
+        """Test fetching act content as PDF bytes."""
+        mock_instance = mock_connector.return_value
+        resource_uri = "http://publications.europa.eu/resource/celex/52025M12135"
+        mock_instance.build_act_content_url.return_value = resource_uri
+        mock_instance.fetch_publication_content.return_value = b"%PDF-1.7"
+
+        result = client.get_act_content(
+            "52025M12135",
+            content_format="pdf",
+        )
+
+        assert result == b"%PDF-1.7"
+        mock_instance.build_act_content_url.assert_called_once_with("52025M12135")
+        mock_instance.fetch_publication_content.assert_called_once_with(
+            resource_uri,
+            language="ENG",
+            max_size=None,
+            return_bytes=False,
+            content_format="pdf",
         )
 
 
