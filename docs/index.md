@@ -41,4 +41,4 @@ If you use bulletin-fetcher library in your work, please cite it as a software p
 - **Author:** Diego González-Suárez
 - **DOI:** 10.5281/zenodo.20156191
 
-You can also find the full citation metadata in the repository citation file above.
+You can also find the full citation metadata in the repository citation file.
