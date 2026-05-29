@@ -41,7 +41,7 @@ class TestParseActsResults:
         assert acts == [
             EurlexOfficialAct(
                 act_uri="https://publications.europa.eu/resource/celex/32025R0001",
-                celex_uri=None,
+                celex_uri="",
                 act_number=None,
                 title="Regulation (EU) 2025/1",
                 date=date(2025, 1, 1),

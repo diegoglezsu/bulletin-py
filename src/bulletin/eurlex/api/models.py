@@ -72,7 +72,7 @@ class EurlexOfficialAct:
         )
         return cls(
             act_uri=act_uri,
-            celex_uri=_optional_value(binding, "celexAct") or _optional_value(binding, "celex"),
+            celex_uri=_optional_value(binding, "celexAct") or _optional_value(binding, "celex") or "",
             act_number=_optional_value(binding, "actNumber"),
             title=_required_value(binding, "title"),
             date=date.fromisoformat(_required_value(binding, "date")),
