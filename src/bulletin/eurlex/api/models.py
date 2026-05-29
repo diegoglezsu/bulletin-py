@@ -65,13 +65,8 @@ class EurlexOfficialAct:
     @classmethod
     def _from_binding(cls, binding: Mapping[str, Any]) -> EurlexOfficialAct:
         """Build an EurlexOfficialAct from one SPARQL binding item."""
-        raw_act_uri = _required_value(binding, "act")
-        act_uri = raw_act_uri.replace(
-            "http://publications.europa.eu/resource/eli/",
-            "https://eur-lex.europa.eu/eli/"
-        )
         return cls(
-            act_uri=act_uri,
+            act_uri=_required_value(binding, "act"),
             celex_uri=_optional_value(binding, "celexAct") or _optional_value(binding, "celex") or "",
             act_number=_optional_value(binding, "actNumber"),
             title=_required_value(binding, "title"),

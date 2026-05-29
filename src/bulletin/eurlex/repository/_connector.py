@@ -113,10 +113,11 @@ class EurlexConnector:
                 cdm:official-journal-act_date_publication
                 | cdm:resource_legal_published_in_official-journal/cdm:publication_general_date_publication
             ) ?date ;
-                   owl:sameAs ?act .
+                   owl:sameAs ?rawAct .
             {date_filters_str}
 
-            FILTER(STRSTARTS(STR(?act), "http://publications.europa.eu/resource/eli/"))
+            FILTER(STRSTARTS(STR(?rawAct), "http://publications.europa.eu/resource/eli/"))
+            BIND(REPLACE(STR(?rawAct), "http://publications.europa.eu/resource/eli/", "https://eur-lex.europa.eu/eli/") AS ?act)
 
             OPTIONAL {{
                 ?c_act owl:sameAs ?celexAct .
