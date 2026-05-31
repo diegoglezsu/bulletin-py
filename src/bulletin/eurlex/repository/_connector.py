@@ -95,34 +95,52 @@ class EurlexConnector:
             PREFIX owl: <http://www.w3.org/2002/07/owl#>
             PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 
-            SELECT DISTINCT
-            ?act ?celexAct
-            (?number AS ?actNumber)
-            (?titleValue AS ?title)
+            SELECT
+            ?act
+            (SAMPLE(?celexUri) AS ?celexAct)
+            (SAMPLE(?number) AS ?actNumber)
+            (SAMPLE(?titleValue) AS ?title)
             ?date
-            (?section AS ?sectionCode)
-            (?subsection AS ?subsectionCode)
-            (REPLACE(STR(?category), ".*/", "") AS ?categoryCode)
-            (?category AS ?categoryUri)
-            (?categoryLabelValue AS ?categoryLabel)
-            (REPLACE(STR(?institution), ".*/", "") AS ?institutionCode)
-            (?institution AS ?institutionUri)
-            (?institutionLabelValue AS ?institutionLabel)
+            (SAMPLE(?section) AS ?sectionCode)
+            (SAMPLE(?subsection) AS ?subsectionCode)
+            (SAMPLE(REPLACE(STR(?category), ".*/", "")) AS ?categoryCode)
+            (SAMPLE(?category) AS ?categoryUri)
+            (SAMPLE(?categoryLabelValue) AS ?categoryLabel)
+            (SAMPLE(REPLACE(STR(?institution), ".*/", "")) AS ?institutionCode)
+            (SAMPLE(?institution) AS ?institutionUri)
+            (SAMPLE(?institutionLabelValue) AS ?institutionLabel)
             WHERE {{
             ?c_act (
                 cdm:official-journal-act_date_publication
                 | cdm:resource_legal_published_in_official-journal/cdm:publication_general_date_publication
-            ) ?date ;
-                   owl:sameAs ?rawAct .
+            ) ?date .
             {date_filters_str}
 
-            FILTER(STRSTARTS(STR(?rawAct), "http://publications.europa.eu/resource/eli/"))
-            BIND(REPLACE(STR(?rawAct), "http://publications.europa.eu/resource/eli/", "https://eur-lex.europa.eu/eli/") AS ?act)
+            OPTIONAL {{
+                ?c_act owl:sameAs ?eliUri .
+                FILTER(CONTAINS(STR(?eliUri), "/resource/eli/"))
+            }}
 
             OPTIONAL {{
-                ?c_act owl:sameAs ?celexAct .
-                FILTER(STRSTARTS(STR(?celexAct), "http://publications.europa.eu/resource/celex/"))
+                ?c_act owl:sameAs ?celexUri .
+                FILTER(CONTAINS(STR(?celexUri), "/resource/celex/"))
             }}
+
+            OPTIONAL {{
+                ?c_act owl:sameAs ?ojUri .
+                FILTER(CONTAINS(STR(?ojUri), "/resource/oj/"))
+            }}
+
+            BIND(COALESCE(?eliUri, ?celexUri, ?ojUri) AS ?rawAct)
+            FILTER(BOUND(?rawAct))
+            BIND(
+                IF(
+                    CONTAINS(STR(?rawAct), "/resource/eli/"),
+                    IRI(REPLACE(STR(?rawAct), "http://publications.europa.eu/resource/eli/", "https://eur-lex.europa.eu/eli/")),
+                    ?rawAct
+                )
+                AS ?act
+            )
 
             ?expr cdm:expression_belongs_to_work ?c_act ;
                     cdm:expression_uses_language <{language_uri}> ;
@@ -153,6 +171,7 @@ class EurlexConnector:
             OPTIONAL {{ ?c_act cdm:resource_legal_number_natural ?resourceLegalNumber . }}
             BIND(COALESCE(STR(?officialJournalActNumber), STR(?resourceLegalNumber)) AS ?number)
             }}
+            GROUP BY ?act ?date
             ORDER BY ?date ?act
         """
 
@@ -163,16 +182,16 @@ class EurlexConnector:
             date_filters_str="\n  ".join(date_filters),
             filters_str="\n  ".join(filters),
         )
-    
+
     def _get_label_filter(self, var_name: str, search: Optional[str]) -> str:
-        """ Helper method for building specific query parts, such as filters and content URLs.
+        """Helper method for building specific query parts, such as filters and content URLs.
         Args:
         - var_name: The variable name used in the SPARQL query (e.g., "label").
         - search: Optional search string for filtering results.
 
         Returns:
         - A SPARQL filter string based on the search parameter.
-            
+
         """
         if search is None:
             return ""
@@ -182,7 +201,9 @@ class EurlexConnector:
         escaped = _escape_sparql_literal(search)
         return f'FILTER(BOUND(?{var_name}) && CONTAINS(LCASE(STR(?{var_name})), LCASE("{escaped}")))'
 
-    def build_category_types_query(self, language: str = DEFAULT_LANGUAGE, search: Optional[str] = None) -> str:
+    def build_category_types_query(
+        self, language: str = DEFAULT_LANGUAGE, search: Optional[str] = None
+    ) -> str:
         """Build a SPARQL query to fetch the list of category types.
 
         Args:
@@ -216,7 +237,9 @@ class EurlexConnector:
         """
         return query
 
-    def build_institution_types_query(self, language: str = DEFAULT_LANGUAGE, search: Optional[str] = None) -> str:
+    def build_institution_types_query(
+        self, language: str = DEFAULT_LANGUAGE, search: Optional[str] = None
+    ) -> str:
         """Build a SPARQL query to fetch the list of institutions.
 
         Note: The corporate-body authority endpoint can be slow/unreliable.
